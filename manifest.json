@@ -3,7 +3,7 @@
   "modules": [
     {
       "name": "Core Hardware",
-      "url": "./modules/piblockly_hw_blocks/"
+      "url": "./piblockly_hw_blocks/"
     }
   ]
 }
