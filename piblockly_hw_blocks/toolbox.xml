@@ -1,0 +1,382 @@
+<xml>
+<category name="%{BKY_PIBLOCKLY_HW_CATEGORY}" colour="#5C81A6">
+  <category name="%{BKY_PIBLOCKLY_HW_CATEGORY_SENSORS}" colour="%{BKY_PIBLOCKLY_HW_COLOR_SENSORS}">
+    <category name="%{BKY_PIBLOCKLY_HW_CATEGORY_COMMON}" id="PIBLOCKLY_HW_CATEGORY_COMMON" colour="%{BKY_PIBLOCKLY_HW_COLOR_SENSORS}">
+      <block type="piblockly_hw_ultrasonic_distance">
+        <value name="TRIG_PIN">
+          <shadow type="arduino_pin_shadow">
+            <field name="PIN">7</field>
+          </shadow>
+        </value>
+        <value name="ECHO_PIN">
+          <shadow type="arduino_pin_shadow">
+            <field name="PIN">6</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="piblockly_hw_dht_read">
+        <value name="PIN">
+          <shadow type="arduino_pin_shadow">
+            <field name="PIN">2</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+    <category name="%{BKY_PIBLOCKLY_HW_SENSORS_MPU9250}" id="PIBLOCKLY_HW_SENSORS_MPU9250" colour="%{BKY_PIBLOCKLY_HW_COLOR_SENSORS}">
+        <block type="piblockly_hw_mpu9250_init">
+            <value name="SDA_PIN">
+                <shadow type="arduino_pin_shadow">
+                    <field name="PIN">A4</field>
+                </shadow>
+            </value>
+            <value name="SCL_PIN">
+                <shadow type="arduino_pin_shadow">
+                    <field name="PIN">A5</field>
+                </shadow>
+            </value>
+        </block>
+        <block type="piblockly_hw_mpu9250_accel_fetch"></block>
+        <block type="piblockly_hw_mpu9250_accel_3axis"></block>
+        <block type="piblockly_hw_mpu9250_gyro_fetch"></block>
+        <block type="piblockly_hw_mpu9250_gyro_3axis"></block>
+        <block type="piblockly_hw_mpu9250_mag_fetch"></block>
+        <block type="piblockly_hw_mpu9250_mag_3axis"></block>
+        <block type="piblockly_hw_mpu9250_accel_pitch_roll"></block>
+    </category>
+    <category name="MAX30105" colour="%{BKY_PIBLOCKLY_HW_COLOR_SENSORS}">
+      <block type="PIBLOCKLY_HW_max30105_init">
+        <value name="SDA_PIN">
+            <shadow type="arduino_pin_shadow">
+                <field name="PIN">A4</field>
+            </shadow>
+        </value>
+        <value name="SCL_PIN">
+            <shadow type="arduino_pin_shadow">
+                <field name="PIN">A5</field>
+            </shadow>
+        </value>
+        <value name="LED_RED">
+          <block type="math_number">
+            <field name="NUM">50</field>
+          </block>
+        </value>
+      </block>
+      <block type="PIBLOCKLY_HW_max30105_check"></block>
+      <block type="PIBLOCKLY_HW_max30105_get_beat_rate">
+        <value name="AVG">
+          <block type="math_number">
+            <field name="NUM">4</field>
+          </block>
+        </value>
+      </block>
+      <block type="PIBLOCKLY_HW_max30105_get_spo2"></block>
+      <block type="PIBLOCKLY_HW_max30105_get_temperature"></block>
+      <block type="PIBLOCKLY_HW_max30105_set_beat_range">
+        <value name="MIN">
+          <block type="math_number">
+            <field name="NUM">20</field>
+          </block>
+        </value>
+        <value name="MAX">
+          <block type="math_number">
+            <field name="NUM">250</field>
+          </block>
+        </value>
+      </block>
+      <block type="PIBLOCKLY_HW_max30105_set_spo2_clear"></block>
+    </category>
+    <category name="PS2" colour="%{BKY_PIBLOCKLY_HW_COLOR_SENSORS}">
+      <block type="PIBLOCKLY_HW_ps2_initial">
+        <value name="CLK">
+          <shadow type="arduino_pin_shadow">
+            <field name="PIN">13</field>
+          </shadow>
+        </value>
+        <value name="CMD">
+          <shadow type="arduino_pin_shadow">
+            <field name="PIN">11</field>
+          </shadow>
+        </value>
+        <value name="CS">
+          <shadow type="arduino_pin_shadow">
+            <field name="PIN">10</field>
+          </shadow>
+        </value>
+        <value name="DAT">
+          <shadow type="arduino_pin_shadow">
+            <field name="PIN">12</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="PIBLOCKLY_HW_ps2_read">
+        <value name="val">
+          <block type="math_number">
+            <field name="NUM">0</field>
+          </block>
+        </value>
+      </block>
+      <block type="PIBLOCKLY_HW_ps2_button_event"></block>
+      <block type="PIBLOCKLY_HW_ps2_stick_direction"></block>
+      <block type="PIBLOCKLY_HW_ps2_analog_read"></block>
+      <block type="PIBLOCKLY_HW_ps2_pressures_read"></block>
+      <block type="PIBLOCKLY_HW_ps2_initial_func"></block>
+      <block type="PIBLOCKLY_HW_ps2_analog_max">
+        <value name="val">
+          <shadow type="math_number">
+            <field name="NUM">1023</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="PIBLOCKLY_HW_ps2_state"></block>
+      <block type="PIBLOCKLY_HW_ps2_receiver_state"></block>
+    </category>
+  </category>
+  <category name="%{BKY_PIBLOCKLY_HW_CATEGORY_ACTUATORS}" colour="%{BKY_PIBLOCKLY_HW_COLOR_ACTUATORS}">
+      <category name="%{BKY_PIBLOCKLY_HW_ACTUATORS_L293D}" id="PIBLOCKLY_HW_ACTUATORS_L293D" colour="%{BKY_PIBLOCKLY_HW_COLOR_ACTUATORS}">
+        <block type="piblockly_hw_l293d_motor_run">
+          <value name="SPEED">
+            <shadow type="math_number">
+              <field name="NUM">100</field>
+            </shadow>
+          </value>
+        </block>
+        <block type="piblockly_hw_l293d_motor_stop"></block>
+        <block type="piblockly_hw_l293d_stepper_init">
+          <value name="STEPS">
+            <shadow type="math_number">
+              <field name="NUM">200</field>
+            </shadow>
+          </value>
+        </block>
+        <block type="piblockly_hw_l293d_stepper_speed">
+          <value name="SPEED">
+            <shadow type="math_number">
+              <field name="NUM">60</field>
+            </shadow>
+          </value>
+        </block>
+        <block type="piblockly_hw_l293d_stepper_run">
+          <value name="STEPS">
+            <shadow type="math_number">
+              <field name="NUM">100</field>
+            </shadow>
+          </value>
+        </block>
+        <block type="piblockly_hw_l293d_stepper_stop"></block>
+        <block type="piblockly_hw_l293d_servo_run">
+          <value name="ANGLE">
+            <shadow type="math_number">
+              <field name="NUM">90</field>
+            </shadow>
+          </value>
+        </block>
+        <block type="piblockly_hw_l293d_servo_detach"></block>
+      </category>
+      <category name="%{BKY_PIBLOCKLY_HW_ACTUATORS_PCA9685}" id="PIBLOCKLY_HW_ACTUATORS_PCA9685" colour="%{BKY_PIBLOCKLY_HW_COLOR_ACTUATORS}">
+        <block type="piblockly_hw_pca9685_init">
+            <value name="SDA_PIN">
+                <shadow type="arduino_pin_shadow">
+                    <field name="PIN">A4</field>
+                </shadow>
+            </value>
+            <value name="SCL_PIN">
+                <shadow type="arduino_pin_shadow">
+                    <field name="PIN">A5</field>
+                </shadow>
+            </value>
+        </block>
+        <block type="piblockly_hw_pca9685_pwm_write">
+          <value name="Channel">
+            <shadow type="arduino_pin_shadow">
+              <field name="PIN">5</field>
+            </shadow>
+          </value>
+          <value name="Value">
+            <shadow type="math_number">
+              <field name="NUM">2047</field>
+            </shadow>
+          </value>
+        </block>
+        <block type="piblockly_hw_pca9685_servo_init">
+          <value name="pulse_min">
+            <shadow type="math_number">
+              <field name="NUM">100</field>
+            </shadow>
+          </value>
+          <value name="pulse_max">
+            <shadow type="math_number">
+              <field name="NUM">500</field>
+            </shadow>
+          </value>
+        </block>
+        <block type="piblockly_hw_pca9685_servo_write">
+          <value name="Channel">
+            <shadow type="arduino_pin_shadow">
+              <field name="PIN">3</field>
+            </shadow>
+          </value>
+          <value name="Degree">
+            <shadow type="math_number">
+              <field name="NUM">90</field>
+            </shadow>
+          </value>
+        </block>
+      </category>
+      <category name="%{BKY_PIBLOCKLY_HW_ACTUATORS_STEPPER}" id="PIBLOCKLY_HW_ACTUATORS_STEPPER" colour="%{BKY_PIBLOCKLY_HW_COLOR_ACTUATORS}">
+        <block type="piblockly_hw_stepper_init">
+          <value name="STEPS">
+            <shadow type="math_number">
+              <field name="NUM">200</field>
+            </shadow>
+          </value>
+          <value name="P1">
+            <shadow type="arduino_pin_shadow">
+              <field name="PIN">2</field>
+            </shadow>
+          </value>
+          <value name="P2">
+            <shadow type="arduino_pin_shadow">
+              <field name="PIN">3</field>
+            </shadow>
+          </value>
+          <value name="P3">
+            <shadow type="arduino_pin_shadow">
+              <field name="PIN">4</field>
+            </shadow>
+          </value>
+          <value name="P4">
+            <shadow type="arduino_pin_shadow">
+              <field name="PIN">5</field>
+            </shadow>
+          </value>
+        </block>
+        <block type="piblockly_hw_stepper_set_speed">
+          <value name="SPEED">
+            <shadow type="math_number">
+              <field name="NUM">100</field>
+            </shadow>
+          </value>
+        </block>
+        <block type="piblockly_hw_stepper_set_accel">
+          <value name="ACCEL">
+            <shadow type="math_number">
+              <field name="NUM">500</field>
+            </shadow>
+          </value>
+        </block>
+        <block type="piblockly_hw_stepper_move_to">
+          <value name="POSITION">
+            <shadow type="math_number">
+              <field name="NUM">0</field>
+            </shadow>
+          </value>
+        </block>
+        <block type="piblockly_hw_stepper_move">
+          <value name="STEPS">
+            <shadow type="math_number">
+              <field name="NUM">100</field>
+            </shadow>
+          </value>
+        </block>
+        <block type="piblockly_hw_stepper_run"></block>
+        <block type="piblockly_hw_stepper_stop"></block>
+      </category>
+    </category>
+  <category name="%{BKY_PIBLOCKLY_HW_CATEGORY_AI}" colour="%{BKY_PIBLOCKLY_HW_COLOR_AI}">
+    <category name="%{BKY_PIBLOCKLY_HW_CATEGORY_HUSKYLENS}" colour="%{BKY_PIBLOCKLY_HW_COLOR_AI}">
+        <category name="%{BKY_PIBLOCKLY_HW_HUSKYLENS_SETUP}" colour="%{BKY_PIBLOCKLY_HW_COLOR_AI}">
+            <block type="piblockly_hw_huskylens_i2c_init">
+              <value name="SDA_PIN">
+                  <shadow type="arduino_pin_shadow">
+                      <field name="PIN">A4</field>
+                  </shadow>
+              </value>
+              <value name="SCL_PIN">
+                  <shadow type="arduino_pin_shadow">
+                      <field name="PIN">A5</field>
+                  </shadow>
+              </value>
+            </block>
+            <block type="piblockly_hw_huskylens_uart_init">
+              <value name="RX">
+                <shadow type="arduino_pin_shadow">
+                  <field name="PIN">9</field>
+                </shadow>
+              </value>
+              <value name="TX">
+                <shadow type="arduino_pin_shadow">
+                  <field name="PIN">8</field>
+                </shadow>
+              </value>
+            </block>
+            <block type="huskylens_set_algorithm"></block>
+
+        </category>
+        <category name="%{BKY_PIBLOCKLY_HW_HUSKYLENS_READ}" colour="%{BKY_PIBLOCKLY_HW_COLOR_AI}">
+            <block type="huskylens_request_and_check"></block>
+            <block type="huskylens_get_result_property"></block>
+        </category>
+        <category name="%{BKY_PIBLOCKLY_HW_HUSKYLENS_TRAINING}" colour="%{BKY_PIBLOCKLY_HW_COLOR_AI}">
+            <block type="piblockly_hw_huskylens_learn">
+              <value name="ID">
+                <shadow type="math_number">
+                  <field name="NUM">1</field>
+                </shadow>
+              </value>
+            </block>
+            <block type="piblockly_hw_huskylens_forget"></block>
+            <block type="piblockly_hw_huskylens_get_count"></block>
+            <block type="piblockly_hw_huskylens_set_name_for_id">
+              <value name="NAME">
+                <shadow type="text">
+                  <field name="TEXT">Object</field>
+                </shadow>
+              </value>
+              <value name="ID">
+                <shadow type="math_number">
+                  <field name="NUM">1</field>
+                </shadow>
+              </value>
+            </block>
+        </category>
+        <category name="%{BKY_PIBLOCKLY_HW_HUSKYLENS_DISPLAY}" colour="%{BKY_PIBLOCKLY_HW_COLOR_AI}">
+            <block type="piblockly_hw_huskylens_show_text">
+              <value name="TEXT">
+                <shadow type="text">
+                  <field name="TEXT">Hello</field>
+                </shadow>
+              </value>
+              <value name="X">
+                <shadow type="math_number">
+                  <field name="NUM">50</field>
+                </shadow>
+              </value>
+              <value name="Y">
+                <shadow type="math_number">
+                  <field name="NUM">50</field>
+                </shadow>
+              </value>
+            </block>
+            <block type="piblockly_hw_huskylens_clear_screen"></block>
+        </category>
+        <category name="%{BKY_PIBLOCKLY_HW_HUSKYLENS_SD}" colour="%{BKY_PIBLOCKLY_HW_COLOR_AI}">
+            <block type="piblockly_hw_huskylens_save_photo"></block>
+            <block type="piblockly_hw_huskylens_save_model">
+              <value name="ID">
+                <shadow type="math_number">
+                  <field name="NUM">0</field>
+                </shadow>
+              </value>
+            </block>
+            <block type="piblockly_hw_huskylens_load_model">
+              <value name="ID">
+                <shadow type="math_number">
+                  <field name="NUM">0</field>
+                </shadow>
+              </value>
+            </block>
+        </category>
+    </category>
+  </category>
+</category>
+</xml>
