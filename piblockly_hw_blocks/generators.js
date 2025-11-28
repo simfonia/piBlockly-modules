@@ -1,6 +1,24 @@
 // piblockly/media/user_modules/_core_hw_lib/generators.js
 
 export function registerGenerators(Blockly) {
+
+  function getPlatformAwareWireSetup(sdaPin, sclPin) {
+    if (sdaPin && sclPin && sdaPin !== '""' && sclPin !== '""') {
+      return `#if defined(ARDUINO_ARCH_RP2040)
+  Wire.setSDA(${sdaPin});
+  Wire.setSCL(${sclPin});
+  Wire.begin();
+#elif defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_ARCH_ESP8266)
+  Wire.begin(${sdaPin}, ${sclPin});
+#else
+  // For standard AVR boards, custom I2C pins are not supported this way. Using default pins.
+  Wire.begin();
+#endif`;
+    } else {
+      return 'Wire.begin();';
+    }
+  }
+
   // Sensors
   // Common Category  
   // HC-SR04
@@ -55,16 +73,16 @@ long ${functionName}(int triggerPin, int echoPin) {
     Blockly.Arduino.includes_['mpu9250_asukiaaa'] = '#include <MPU9250_asukiaaa.h>';
     Blockly.Arduino.global_vars_['mpu9250_obj'] = 'MPU9250_asukiaaa myMPU9250;';
     Blockly.Arduino.global_vars_['mpu9250_angles'] = 'double pitch, roll, yaw;';
-    
-    Blockly.Arduino.function_definitions_['calc_mpu9250_angle'] = 
-`void calcMPU9250angle() {
+
+    Blockly.Arduino.function_definitions_['calc_mpu9250_angle'] =
+      `void calcMPU9250angle() {
   pitch = atan2(myMPU9250.accelY(), sqrt(myMPU9250.accelX() * myMPU9250.accelX() + myMPU9250.accelZ() * myMPU9250.accelZ())) * 57.3;
   roll = atan2(myMPU9250.accelX(), sqrt(myMPU9250.accelY() * myMPU9250.accelY() + myMPU9250.accelZ() * myMPU9250.accelZ())) * 57.3;
 }`;
-    
-    let wireBeginCode = (sdaPin && sclPin) ? `Wire.begin(${sdaPin}, ${sclPin});` : 'Wire.begin();';
 
-    let setupCode = `  ${wireBeginCode}\n`;
+    const wireSetupCode = getPlatformAwareWireSetup(sdaPin, sclPin);
+
+    let setupCode = `  ${wireSetupCode}\n`;
     setupCode += `  myMPU9250.setWire(&Wire);\n`;
     setupCode += `  myMPU9250.beginAccel(${accelRange});\n`;
     setupCode += `  myMPU9250.beginGyro(${gyroRange});\n`;
@@ -121,14 +139,14 @@ long ${functionName}(int triggerPin, int echoPin) {
     const sdaPin = Blockly.Arduino.valueToCode(block, 'SDA_PIN', Blockly.Arduino.ORDER_ATOMIC);
     const sclPin = Blockly.Arduino.valueToCode(block, 'SCL_PIN', Blockly.Arduino.ORDER_ATOMIC);
     var ledRed = Blockly.Arduino.valueToCode(block, "LED_RED", Blockly.Arduino.ORDER_ATOMIC) || "0";
-    
+
     Blockly.Arduino.includes_['wire'] = '#include <Wire.h>';
     Blockly.Arduino.includes_['define_MAX30105_include'] = '#include "MAX30105.h"\n#include "heartRate.h"';
     Blockly.Arduino.global_vars_['define_MAX30105_variable_invoke'] = '#define FINGER_ON 7000\n#define MINIMUM_SPO2 90.0\nboolean max3010xReady=false;\ndouble avgRed=0, avgIR=0, ESpO2 = MINIMUM_SPO2;\nconst double FSpO2 = 0.7, frate = 0.95;\nbyte validMin=20, validMax=250;\nMAX30105 max3010xSensor;\n';
-    
-    let wireBeginCode = (sdaPin && sclPin) ? `Wire.begin(${sdaPin}, ${sclPin});` : 'Wire.begin();';
 
-    let setupCode = `  ${wireBeginCode}\n`;
+    const wireSetupCode = getPlatformAwareWireSetup(sdaPin, sclPin);
+
+    let setupCode = `  ${wireSetupCode}\n`;
     setupCode += `  max3010xReady=max3010xSensor.begin(Wire, I2C_SPEED_FAST);\n`;
     setupCode += `  max3010xSensor.setup(${ledRed}, 4, 2, 800, 215, 16384);\n`;
     setupCode += `  max3010xSensor.enableDIETEMPRDY();\n`;
@@ -305,12 +323,51 @@ long ${functionName}(int triggerPin, int echoPin) {
     Blockly.Arduino.includes_['l293d_afmotor'] = '#include <AFMotor.h>';
     const motor = block.getFieldValue('MOTOR');
     const dir = block.getFieldValue('DIR');
-    const speed = Blockly.Arduino.valueToCode(block, 'SPEED', Blockly.Arduino.ORDER_ATOMIC) || '0';
+    let speed = Blockly.Arduino.valueToCode(block, 'SPEED', Blockly.Arduino.ORDER_ATOMIC) || '0';
 
     Blockly.Arduino.global_vars_[`l293d_motor${motor}`] = `AF_DCMotor motor${motor}(${motor}, MOTOR12_8KHZ);`;
-    Blockly.Arduino.setups_[`l293d_motor_speed${motor}`] = `motor${motor}.setSpeed(${speed});`;
+    
+    // Constrain the speed to 0-255 range
+    speed = `constrain(${speed}, 0, 255)`;
 
     return `motor${motor}.run(${dir});\nmotor${motor}.setSpeed(${speed});\n`;
+  };
+
+  // New block: piblockly_hw_l293d_motor_speed
+  Blockly.Arduino.forBlock['piblockly_hw_l293d_motor_speed'] = function(block) {
+    Blockly.Arduino.includes_['l293d_afmotor'] = '#include <AFMotor.h>';
+    const motor = block.getFieldValue('MOTOR');
+    const speed = Blockly.Arduino.valueToCode(block, 'SPEED', Blockly.Arduino.ORDER_ATOMIC) || '0';
+
+    // Ensure the motor object is defined globally
+    Blockly.Arduino.global_vars_[`l293d_motor${motor}`] = `AF_DCMotor motor${motor}(${motor}, MOTOR12_8KHZ);`;
+    
+    // Define a helper function to handle the signed speed logic
+    const functionName = Blockly.Arduino.variableDB_.getDistinctName(
+      `runDCMotor_${motor}`, Blockly.NAME_TYPE
+    ); // Use motor number in function name to avoid conflicts if multiple motors are used with this block
+
+    const functionCode = `
+void ${functionName}(AF_DCMotor &motor_obj, int speed_val) {
+  if (speed_val > 255) speed_val = 255;
+  if (speed_val < -255) speed_val = -255;
+  
+  if (speed_val > 0) {
+    motor_obj.run(FORWARD);
+    motor_obj.setSpeed(speed_val);
+  } else if (speed_val < 0) {
+    motor_obj.run(BACKWARD);
+    motor_obj.setSpeed(abs(speed_val));
+  } else {
+    motor_obj.run(RELEASE);
+    motor_obj.setSpeed(0);
+  }
+}`;
+    
+    Blockly.Arduino.function_definitions_[`l293d_motor_speed_helper_${motor}`] = functionCode;
+
+    // Generate the call to the helper function
+    return `${functionName}(motor${motor}, ${speed});\n`;
   };
 
   Blockly.Arduino.forBlock['piblockly_hw_l293d_motor_stop'] = function (block) {
@@ -380,10 +437,10 @@ long ${functionName}(int triggerPin, int echoPin) {
     Blockly.Arduino.includes_['wire'] = '#include <Wire.h>'; // Ensure Wire.h is included
     Blockly.Arduino.includes_['pca9685_adafruit_pwm'] = '#include <Adafruit_PWMServoDriver.h>';
     Blockly.Arduino.global_vars_['pca9685_pwm'] = 'Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();';
-    
-    let wireBeginCode = (sdaPin && sclPin) ? `Wire.begin(${sdaPin}, ${sclPin});` : 'Wire.begin();';
 
-    let setupCode = `  ${wireBeginCode}\n`;
+    const wireSetupCode = getPlatformAwareWireSetup(sdaPin, sclPin);
+
+    let setupCode = `  ${wireSetupCode}\n`;
     setupCode += `  pwm.begin();\n`;
     setupCode += `  pwm.setOscillatorFrequency(27000000);\n`;
     setupCode += `  pwm.setPWMFreq(50);\n`;
@@ -429,6 +486,66 @@ void servoset(int ch_, int deg_) {
 }`;
     return `servoset(${channel}, ${degree});\n`;
   };
+
+
+  // Servo
+  Blockly.Arduino.forBlock['piblockly_hw_servo_attach'] = function (block) {
+    const servoVar = block.getFieldValue('SERVO_VAR');
+    const pin = Blockly.Arduino.valueToCode(block, 'PIN', Blockly.Arduino.ORDER_ATOMIC);
+
+    Blockly.Arduino.includes_['servo'] = '#include <Servo.h>';
+    Blockly.Arduino.global_vars_['servo_' + servoVar] = `Servo ${servoVar};`;
+    Blockly.Arduino.setups_['servo_attach_' + servoVar] = `${servoVar}.attach(${pin});`;
+
+    return '';
+
+  };
+
+
+
+  Blockly.Arduino.forBlock['piblockly_hw_servo_attach_advanced'] = function (block) {
+    const servoVar = block.getFieldValue('SERVO_VAR');
+    const pin = Blockly.Arduino.valueToCode(block, 'PIN', Blockly.Arduino.ORDER_ATOMIC);
+    const min = Blockly.Arduino.valueToCode(block, 'MIN', Blockly.Arduino.ORDER_ATOMIC);
+    const max = Blockly.Arduino.valueToCode(block, 'MAX', Blockly.Arduino.ORDER_ATOMIC);
+
+    Blockly.Arduino.includes_['servo'] = '#include <Servo.h>';
+    Blockly.Arduino.global_vars_['servo_' + servoVar] = `Servo ${servoVar};`;
+    Blockly.Arduino.setups_['servo_attach_' + servoVar] = `${servoVar}.attach(${pin}, ${min}, ${max});`;
+
+    return '';
+  };
+
+
+
+  Blockly.Arduino.forBlock['piblockly_hw_servo_write'] = function (block) {
+    const servoVar = block.getFieldValue('SERVO_VAR');
+    const angle = Blockly.Arduino.valueToCode(block, 'ANGLE', Blockly.Arduino.ORDER_ATOMIC);
+
+    return `${servoVar}.write(${angle});\n`;
+  };
+
+  Blockly.Arduino.forBlock['piblockly_hw_servo_write_micros'] = function (block) {
+    const servoVar = block.getFieldValue('SERVO_VAR');
+    const micros = Blockly.Arduino.valueToCode(block, 'MICROS', Blockly.Arduino.ORDER_ATOMIC);
+
+    return `${servoVar}.writeMicroseconds(${micros});\n`;
+  };
+
+  Blockly.Arduino.forBlock['piblockly_hw_servo_read'] = function (block) {
+    const servoVar = block.getFieldValue('SERVO_VAR');
+
+    const code = `${servoVar}.read()`;
+    return [code, Blockly.Arduino.ORDER_ATOMIC];
+  };
+
+  Blockly.Arduino.forBlock['piblockly_hw_servo_detach'] = function (block) {
+    const servoVar = block.getFieldValue('SERVO_VAR');
+
+    return `${servoVar}.detach();\n`;
+  };
+
+
 
   // Stepper
   Blockly.Arduino.forBlock['piblockly_hw_stepper_init'] = function (block) {
@@ -498,13 +615,13 @@ void servoset(int ch_, int deg_) {
     Blockly.Arduino.includes_['huskylens_softwareserial'] = '#include <SoftwareSerial.h>';
     Blockly.Arduino.includes_['huskylens'] = '#include "DFRobot_HuskyLens.h" // Library: https://github.com/simfonia/piBlockly-modules/blob/master/lib/HuskyLens.7z';
     Blockly.Arduino.global_vars_['huskylens'] = 'DFRobot_HuskyLens huskylens;';
-    
+
     let wireSetupCode;
     const hasCustomPins = sdaPin && sclPin && sdaPin !== '""' && sclPin !== '""';
 
     if (hasCustomPins) {
-        wireSetupCode = 
-`#if defined(ARDUINO_ARCH_RP2040)
+      wireSetupCode =
+        `#if defined(ARDUINO_ARCH_RP2040)
   Wire.setSDA(${sdaPin});
   Wire.setSCL(${sclPin});
   Wire.begin();
@@ -515,7 +632,7 @@ void servoset(int ch_, int deg_) {
   Wire.begin();
 #endif`;
     } else {
-        wireSetupCode = 'Wire.begin();';
+      wireSetupCode = 'Wire.begin();';
     }
 
     let setupCode = `  ${wireSetupCode}\n`;
@@ -528,7 +645,7 @@ void servoset(int ch_, int deg_) {
     return '';
   };
 
-  Blockly.Arduino.forBlock['piblockly_hw_huskylens_uart_init'] = function(block) {
+  Blockly.Arduino.forBlock['piblockly_hw_huskylens_uart_init'] = function (block) {
     var rx = Blockly.Arduino.valueToCode(block, "RX", Blockly.Arduino.ORDER_ATOMIC) || "10";
     var tx = Blockly.Arduino.valueToCode(block, "TX", Blockly.Arduino.ORDER_ATOMIC) || "11";
 
@@ -562,27 +679,27 @@ ${branch}  }
     return [code, Blockly.Arduino.ORDER_MEMBER];
   };
 
-  Blockly.Arduino.forBlock['piblockly_hw_huskylens_show_text'] = function(block) {
+  Blockly.Arduino.forBlock['piblockly_hw_huskylens_show_text'] = function (block) {
     var text = Blockly.Arduino.valueToCode(block, "TEXT", Blockly.Arduino.ORDER_ATOMIC) || '""';
     var x = Blockly.Arduino.valueToCode(block, "X", Blockly.Arduino.ORDER_ATOMIC) || 0;
     var y = Blockly.Arduino.valueToCode(block, "Y", Blockly.Arduino.ORDER_ATOMIC) || 0;
     return "huskylens.customText(" + text + ", " + x + ", " + y + ");\n";
   };
 
-  Blockly.Arduino.forBlock['piblockly_hw_huskylens_clear_screen'] = function(block) {
+  Blockly.Arduino.forBlock['piblockly_hw_huskylens_clear_screen'] = function (block) {
     return "huskylens.clearCustomText();\n";
   };
 
-  Blockly.Arduino.forBlock['piblockly_hw_huskylens_learn'] = function(block) {
+  Blockly.Arduino.forBlock['piblockly_hw_huskylens_learn'] = function (block) {
     var id = Blockly.Arduino.valueToCode(block, 'ID', Blockly.Arduino.ORDER_ATOMIC) || '1';
     return `huskylens.writeLearn(${id});\n`;
   };
 
-  Blockly.Arduino.forBlock['piblockly_hw_huskylens_forget'] = function(block) {
+  Blockly.Arduino.forBlock['piblockly_hw_huskylens_forget'] = function (block) {
     return `huskylens.writeForget();\n`;
   };
 
-  Blockly.Arduino.forBlock['piblockly_hw_huskylens_get_count'] = function(block) {
+  Blockly.Arduino.forBlock['piblockly_hw_huskylens_get_count'] = function (block) {
     var countType = block.getFieldValue('COUNT_TYPE');
     var code = '';
     if (countType === 'LEARNED_IDS') {
@@ -595,26 +712,25 @@ ${branch}  }
     return [code, Blockly.Arduino.ORDER_ATOMIC];
   };
 
-  Blockly.Arduino.forBlock['piblockly_hw_huskylens_set_name_for_id'] = function(block) {
+  Blockly.Arduino.forBlock['piblockly_hw_huskylens_set_name_for_id'] = function (block) {
     var name = Blockly.Arduino.valueToCode(block, 'NAME', Blockly.Arduino.ORDER_ATOMIC) || '""';
     var id = Blockly.Arduino.valueToCode(block, 'ID', Blockly.Arduino.ORDER_ATOMIC) || '1';
     return `huskylens.setCustomName(${name}, ${id});\n`;
   };
 
-  Blockly.Arduino.forBlock['piblockly_hw_huskylens_save_photo'] = function(block) {
+  Blockly.Arduino.forBlock['piblockly_hw_huskylens_save_photo'] = function (block) {
     return `huskylens.savePictureToSDCard();\n`;
   };
 
-  Blockly.Arduino.forBlock['piblockly_hw_huskylens_save_model'] = function(block) {
+  Blockly.Arduino.forBlock['piblockly_hw_huskylens_save_model'] = function (block) {
     var id = Blockly.Arduino.valueToCode(block, 'ID', Blockly.Arduino.ORDER_ATOMIC) || '1';
     return `huskylens.saveModelToSDCard(${id});\n`;
   };
 
-  Blockly.Arduino.forBlock['piblockly_hw_huskylens_load_model'] = function(block) {
+  Blockly.Arduino.forBlock['piblockly_hw_huskylens_load_model'] = function (block) {
     var id = Blockly.Arduino.valueToCode(block, 'ID', Blockly.Arduino.ORDER_ATOMIC) || '1';
     return `huskylens.loadModelFromSDCard(${id});\n`;
   };
-
 
 
 

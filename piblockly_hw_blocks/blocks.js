@@ -824,6 +824,42 @@ export function registerBlocks(Blockly) {
       });
     },
   };
+
+  Blockly.Blocks["piblockly_hw_l293d_motor_speed"] = {
+    init: function () {
+      this.jsonInit({
+        message0: Blockly.Msg["PIBLOCKLY_HW_L293D_MOTOR_SPEED_MESSAGE"],
+        args0: [
+          {
+            type: "field_dropdown",
+            name: "MOTOR",
+            options: [
+              ["M1", "1"],
+              ["M2", "2"],
+              ["M3", "3"],
+              ["M4", "4"],
+            ],
+          },
+          {
+            type: "input_value",
+            name: "SPEED",
+            check: "Number",
+            shadow: {
+              type: "math_number",
+              fields: { "NUM": 0 }
+            }
+          },
+        ],
+        inputsInline: true,
+        previousStatement: true,
+        nextStatement: true,
+        colour: Blockly.Msg.PIBLOCKLY_HW_COLOR_ACTUATORS,
+        tooltip: Blockly.Msg["PIBLOCKLY_HW_L293D_MOTOR_SPEED_TOOLTIP"],
+        helpUrl: Blockly.Msg["PIBLOCKLY_HW_L293D_HELPURL"],
+      });
+    },
+  };
+
   Blockly.Blocks["piblockly_hw_l293d_motor_stop"] = {
     init: function () {
       this.jsonInit({
@@ -1142,6 +1178,226 @@ export function registerBlocks(Blockly) {
         helpUrl: Blockly.Msg["PIBLOCKLY_HW_PCA9685_HELPURL"],
       });
     },
+  };
+
+
+  // Servo Blocks
+  const servoInstanceDropdown = function() {
+    const names = new Set();
+    const workspace = Blockly.getMainWorkspace();
+
+    // Collect names from simple attach blocks
+    workspace.getBlocksByType('piblockly_hw_servo_attach', false).forEach(function(block) {
+      const varName = block.getFieldValue('SERVO_VAR');
+      if (varName) {
+        names.add(varName);
+      }
+    });
+
+    // Collect names from advanced attach blocks
+    workspace.getBlocksByType('piblockly_hw_servo_attach_advanced', false).forEach(function(block) {
+      const varName = block.getFieldValue('SERVO_VAR');
+      if (varName) {
+        names.add(varName);
+      }
+    });
+
+    // Ensure 'myServo' is always an available option, especially if no attach blocks are found yet.
+    // This handles the initial loading case where a block like servo_write might try to set 'myServo'.
+    names.add('myServo');
+
+    let options = Array.from(names).map(name => [name, name]);
+
+    // Sort alphabetically
+    options.sort((a, b) => a[0].localeCompare(b[0]));
+
+    // If, for some reason, options is still empty after all checks, provide a minimal option.
+    // This is defensive programming, though 'myServo' should prevent it from being empty.
+    if (options.length === 0) {
+        options.push(['-', '']);
+    }
+
+    return options;
+  };
+
+
+  Blockly.Blocks['piblockly_hw_servo_attach'] = {
+    init: function() {
+      this.jsonInit({
+        "message0": Blockly.Msg.PIBLOCKLY_HW_SERVO_ATTACH_MESSAGE,
+        "args0": [
+          {
+            "type": "input_value",
+            "name": "PIN",
+            "check": ["Number", "String"],
+            "shadow": {
+              "type": "arduino_pin_shadow"
+            }
+          },
+          {
+            "type": "field_input",
+            "name": "SERVO_VAR",
+            "text": "myServo"
+          }
+        ],
+        "previousStatement": null,
+        "nextStatement": null,
+        "colour": Blockly.Msg.PIBLOCKLY_HW_COLOR_ACTUATORS,
+        "tooltip": Blockly.Msg.PIBLOCKLY_HW_SERVO_ATTACH_TOOLTIP,
+        "helpUrl": ""
+      });
+    }
+  };
+
+  Blockly.Blocks['piblockly_hw_servo_attach_advanced'] = {
+    init: function() {
+      this.jsonInit({
+        "message0": Blockly.Msg.PIBLOCKLY_HW_SERVO_ATTACH_ADVANCED_MESSAGE,
+        "args0": [
+          {
+            "type": "input_value",
+            "name": "PIN",
+            "check": ["Number", "String"],
+            "shadow": {
+              "type": "arduino_pin_shadow"
+            }
+          },
+          {
+            "type": "field_input",
+            "name": "SERVO_VAR",
+            "text": "myServo"
+          },
+          {
+            "type": "input_value",
+            "name": "MIN",
+            "check": "Number",
+            "shadow": {
+              "type": "math_number",
+              "fields": { "NUM": 544 }
+            }
+          },
+          {
+            "type": "input_value",
+            "name": "MAX",
+            "check": "Number",
+            "shadow": {
+              "type": "math_number",
+              "fields": { "NUM": 2400 }
+            }
+          }
+        ],
+        "previousStatement": null,
+        "nextStatement": null,
+        "colour": Blockly.Msg.PIBLOCKLY_HW_COLOR_ACTUATORS,
+        "tooltip": Blockly.Msg.PIBLOCKLY_HW_SERVO_ATTACH_ADVANCED_TOOLTIP,
+        "helpUrl": ""
+      });
+    }
+  };
+
+  Blockly.Blocks['piblockly_hw_servo_write'] = {
+    init: function() {
+      this.jsonInit({
+        "message0": Blockly.Msg.PIBLOCKLY_HW_SERVO_WRITE_MESSAGE,
+        "args0": [
+          {
+            "type": "field_dropdown",
+            "name": "SERVO_VAR",
+            "options": servoInstanceDropdown
+          },
+          {
+            "type": "input_value",
+            "name": "ANGLE",
+            "check": "Number",
+            "shadow": {
+              "type": "math_number",
+              "fields": {
+                "NUM": 90
+              }
+            }
+          }
+        ],
+        "inputsInline": true,
+        "previousStatement": null,
+        "nextStatement": null,
+        "colour": Blockly.Msg.PIBLOCKLY_HW_COLOR_ACTUATORS,
+        "tooltip": Blockly.Msg.PIBLOCKLY_HW_SERVO_WRITE_TOOLTIP,
+        "helpUrl": ""
+      });
+    }
+  };
+
+  Blockly.Blocks['piblockly_hw_servo_write_micros'] = {
+    init: function() {
+      this.jsonInit({
+        "message0": Blockly.Msg.PIBLOCKLY_HW_SERVO_WRITE_MICROS_MESSAGE,
+        "args0": [
+          {
+            "type": "field_dropdown",
+            "name": "SERVO_VAR",
+            "options": servoInstanceDropdown
+          },
+          {
+            "type": "input_value",
+            "name": "MICROS",
+            "check": "Number",
+            "shadow": {
+              "type": "math_number",
+              "fields": {
+                "NUM": 1500
+              }
+            }
+          }
+        ],
+        "inputsInline": true,
+        "previousStatement": null,
+        "nextStatement": null,
+        "colour": Blockly.Msg.PIBLOCKLY_HW_COLOR_ACTUATORS,
+        "tooltip": Blockly.Msg.PIBLOCKLY_HW_SERVO_WRITE_MICROS_TOOLTIP,
+        "helpUrl": ""
+      });
+    }
+  };
+
+  Blockly.Blocks['piblockly_hw_servo_read'] = {
+    init: function() {
+      this.jsonInit({
+        "message0": Blockly.Msg.PIBLOCKLY_HW_SERVO_READ_MESSAGE,
+        "args0": [
+          {
+            "type": "field_dropdown",
+            "name": "SERVO_VAR",
+            "options": servoInstanceDropdown
+          }
+        ],
+        "inputsInline": true,
+        "output": "Number",
+        "colour": Blockly.Msg.PIBLOCKLY_HW_COLOR_ACTUATORS,
+        "tooltip": Blockly.Msg.PIBLOCKLY_HW_SERVO_READ_TOOLTIP,
+        "helpUrl": ""
+      });
+    }
+  };
+
+  Blockly.Blocks['piblockly_hw_servo_detach'] = {
+    init: function() {
+      this.jsonInit({
+        "message0": Blockly.Msg.PIBLOCKLY_HW_SERVO_DETACH_MESSAGE,
+        "args0": [
+          {
+            "type": "field_dropdown",
+            "name": "SERVO_VAR",
+            "options": servoInstanceDropdown
+          }
+        ],
+        "inputsInline": true,
+        "previousStatement": null,
+        "nextStatement": null,
+        "colour": Blockly.Msg.PIBLOCKLY_HW_COLOR_ACTUATORS,
+        "tooltip": Blockly.Msg.PIBLOCKLY_HW_SERVO_DETACH_TOOLTIP,
+        "helpUrl": ""
+      });
+    }
   };
 
 
@@ -1642,7 +1898,5 @@ export function registerBlocks(Blockly) {
       });
     },
   };
-
-
 
 }

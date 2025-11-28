@@ -18,6 +18,7 @@ export const MSG_PIBLOCKLY_HW_EN = {
   // AI
   PIBLOCKLY_HW_CATEGORY_AI: "AI",
 
+
   // Sensors
   // Common Category
   PIBLOCKLY_HW_CATEGORY_COMMON: "Common",
@@ -190,6 +191,8 @@ export const MSG_PIBLOCKLY_HW_EN = {
   PIBLOCKLY_HW_L293D_MOTOR_RUN_TITLE: "L293D DC Motor",
   PIBLOCKLY_HW_L293D_MOTOR_RUN_TOOLTIP: "L293D DC motor control",
   PIBLOCKLY_HW_L293D_MOTOR_RUN_MESSAGE: "L293D DC Motor %1 %2 Speed %3",
+  PIBLOCKLY_HW_L293D_MOTOR_SPEED_MESSAGE: "L293D DC Motor %1 Speed %2 (-255 to 255)",
+  PIBLOCKLY_HW_L293D_MOTOR_SPEED_TOOLTIP: "Controls L293D DC motor speed and direction using a single value from -255 (backward) to 255 (forward). 0 stops the motor.",
   PIBLOCKLY_HW_L293D_MOTOR_STOP_TITLE: "L293D DC Motor Stop",
   PIBLOCKLY_HW_L293D_MOTOR_STOP_TOOLTIP: "Stop the L293D DC motor",
   PIBLOCKLY_HW_L293D_MOTOR_STOP_MESSAGE: "L293D DC Motor %1 Stop",
@@ -244,6 +247,22 @@ export const MSG_PIBLOCKLY_HW_EN = {
   "PIBLOCKLY_HW_PCA9685_PWM_WRITE_TOOLTIP": "Sets the PWM value for a specific channel on the PCA9685 PWM controller.",
   "PIBLOCKLY_HW_PCA9685_SERVO_INIT_TOOLTIP": "Sets the minimum and maximum pulse width for the servo motor on the PCA9685 PWM controller.",
   "PIBLOCKLY_HW_PCA9685_SERVO_WRITE_TOOLTIP": "Sets the angle of the servo motor on a specific channel of the PCA9685 PWM controller.",
+
+
+  // Servo Blocks
+  PIBLOCKLY_HW_CATEGORY_SERVO: "Servo",
+  PIBLOCKLY_HW_SERVO_ATTACH_MESSAGE: "attach servo on pin %1 as %2",
+  PIBLOCKLY_HW_SERVO_ATTACH_TOOLTIP: "Attaches a servo object to a specified pin and gives it a name.",
+  PIBLOCKLY_HW_SERVO_ATTACH_ADVANCED_MESSAGE: "attach servo on pin %1 as %2 (pulse min %3 max %4 μs)",
+  PIBLOCKLY_HW_SERVO_ATTACH_ADVANCED_TOOLTIP: "Attaches a servo with custom pulse widths. 'min' corresponds to the 0-degree angle, and 'max' corresponds to the 180-degree angle.",
+  PIBLOCKLY_HW_SERVO_WRITE_MESSAGE: "set servo %1 angle to %2",
+  PIBLOCKLY_HW_SERVO_WRITE_TOOLTIP: "Commands the specified servo to move to a certain angle (0-180).",
+  PIBLOCKLY_HW_SERVO_WRITE_MICROS_MESSAGE: "set servo %1 pulse to %2 (μs)",
+  PIBLOCKLY_HW_SERVO_WRITE_MICROS_TOOLTIP: "Sets the servo pulse in microseconds (e.g., 1000-2000).",
+  PIBLOCKLY_HW_SERVO_READ_MESSAGE: "get angle from servo %1",
+  PIBLOCKLY_HW_SERVO_READ_TOOLTIP: "Reads the last angle that was written to the servo.",
+  PIBLOCKLY_HW_SERVO_DETACH_MESSAGE: "detach servo %1",
+  PIBLOCKLY_HW_SERVO_DETACH_TOOLTIP: "Detaches the servo from its pin to save power and allow it to be turned by hand.",
 
 
   // Stepper Blocks
