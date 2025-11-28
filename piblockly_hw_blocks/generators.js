@@ -494,14 +494,35 @@ void servoset(int ch_, int deg_) {
     const sdaPin = Blockly.Arduino.valueToCode(block, 'SDA_PIN', Blockly.Arduino.ORDER_ATOMIC);
     const sclPin = Blockly.Arduino.valueToCode(block, 'SCL_PIN', Blockly.Arduino.ORDER_ATOMIC);
 
-    Blockly.Arduino.includes_['wire'] = '#include <Wire.h>'; // Ensure Wire.h is included
-    Blockly.Arduino.includes_['huskylens'] = '#include "HUSKYLENS.h" // Library: "HUSKYLENS" by DFRobot';
-    Blockly.Arduino.global_vars_['huskylens'] = 'HUSKYLENS huskylens;';
+    Blockly.Arduino.includes_['wire'] = '#include <Wire.h>';
+    Blockly.Arduino.includes_['huskylens_softwareserial'] = '#include <SoftwareSerial.h>';
+    Blockly.Arduino.includes_['huskylens'] = '#include "DFRobot_HuskyLens.h" // Library: https://github.com/simfonia/piBlockly-modules/blob/master/lib/HuskyLens.7z';
+    Blockly.Arduino.global_vars_['huskylens'] = 'DFRobot_HuskyLens huskylens;';
     
-    let wireBeginCode = (sdaPin && sclPin) ? `Wire.begin(${sdaPin}, ${sclPin});` : 'Wire.begin();';
+    let wireSetupCode;
+    const hasCustomPins = sdaPin && sclPin && sdaPin !== '""' && sclPin !== '""';
 
-    let setupCode = `  ${wireBeginCode}\n`;
-    setupCode += `  huskylens.begin(Wire);`;
+    if (hasCustomPins) {
+        wireSetupCode = 
+`#if defined(ARDUINO_ARCH_RP2040)
+  Wire.setSDA(${sdaPin});
+  Wire.setSCL(${sclPin});
+  Wire.begin();
+#elif defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_ARCH_ESP8266)
+  Wire.begin(${sdaPin}, ${sclPin});
+#else
+  // For standard AVR boards, custom I2C pins are not supported this way. Using default pins.
+  Wire.begin();
+#endif`;
+    } else {
+        wireSetupCode = 'Wire.begin();';
+    }
+
+    let setupCode = `  ${wireSetupCode}\n`;
+    setupCode += `  while (!huskylens.begin(Wire)) {\n`;
+    setupCode += `    // Add error message here if needed, e.g., via Serial Monitor\n`;
+    setupCode += `    delay(100);\n`;
+    setupCode += `  }`;
 
     Blockly.Arduino.setups_['huskylens_begin'] = setupCode;
     return '';
@@ -510,16 +531,12 @@ void servoset(int ch_, int deg_) {
   Blockly.Arduino.forBlock['piblockly_hw_huskylens_uart_init'] = function(block) {
     var rx = Blockly.Arduino.valueToCode(block, "RX", Blockly.Arduino.ORDER_ATOMIC) || "10";
     var tx = Blockly.Arduino.valueToCode(block, "TX", Blockly.Arduino.ORDER_ATOMIC) || "11";
-    Blockly.Arduino.includes_['huskylens'] = '#include "HUSKYLENS.h"';
+
+    // Main huskylens include/object are defined in the I2C block generator.
+    // We still need to ensure SoftwareSerial is included, as the DFRobot_HuskyLens.h does not include it.
     Blockly.Arduino.includes_['huskylens_softwareserial'] = '#include <SoftwareSerial.h>';
-    Blockly.Arduino.global_vars_['huskylens'] = 'HUSKYLENS huskylens;';
-    Blockly.Arduino.global_vars_['huskylens_serial'] = `SoftwareSerial huskylensSerial(${rx}, ${tx});`;
-    Blockly.Arduino.setups_['huskylens_begin'] = 
-`  huskylensSerial.begin(9600);
-  while (!huskylens.begin(huskylensSerial)) {
-      // You can add some error message output here, for example, via Serial Monitor
-      delay(100);
-  }`;
+
+    Blockly.Arduino.setups_['huskylens_begin'] = `huskylens.beginSoftwareSerialUntilSuccess(${rx}, ${tx});`;
     return "";
   };
 
@@ -569,11 +586,11 @@ ${branch}  }
     var countType = block.getFieldValue('COUNT_TYPE');
     var code = '';
     if (countType === 'LEARNED_IDS') {
-      code = 'huskylens.countLearnedIDs()';
+      code = 'huskylens.readLearnedIDCount()';
     } else if (countType === 'BLOCKS') {
-      code = 'huskylens.countBlocks()';
+      code = 'huskylens.readCount(HUSKYLENSResultBlock)';
     } else if (countType === 'ARROWS') {
-      code = 'huskylens.countArrows()';
+      code = 'huskylens.readCount(HUSKYLENSResultArrow)';
     }
     return [code, Blockly.Arduino.ORDER_ATOMIC];
   };
