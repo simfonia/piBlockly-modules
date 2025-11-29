@@ -82,11 +82,12 @@ long ${functionName}(int triggerPin, int echoPin) {
 
     const wireSetupCode = getPlatformAwareWireSetup(sdaPin, sclPin);
 
-    let setupCode = `  ${wireSetupCode}\n`;
-    setupCode += `  myMPU9250.setWire(&Wire);\n`;
-    setupCode += `  myMPU9250.beginAccel(${accelRange});\n`;
-    setupCode += `  myMPU9250.beginGyro(${gyroRange});\n`;
-    setupCode += `  myMPU9250.beginMag();`;
+    let setupCode = `${wireSetupCode}
+`;
+    setupCode += `  myMPU9250.setWire(&Wire);
+  myMPU9250.beginAccel(${accelRange});
+  myMPU9250.beginGyro(${gyroRange});
+  myMPU9250.beginMag();`;
 
     Blockly.Arduino.setups_['mpu9250_init'] = setupCode;
     return '';
@@ -99,9 +100,8 @@ long ${functionName}(int triggerPin, int echoPin) {
   };
 
   Blockly.Arduino.forBlock['piblockly_hw_mpu9250_accel_3axis'] = function (block) {
-    const axis = block.getFieldValue('AXIS'); // 0, 1, 2 for x, y, z
-    const axes = ['myMPU9250.accelX()', 'myMPU9250.accelY()', 'myMPU9250.accelZ()'];
-    return [axes[parseInt(axis)], Blockly.Arduino.ORDER_ATOMIC];
+    const axis = block.getFieldValue('AXIS');
+    return [axis, Blockly.Arduino.ORDER_ATOMIC];
   };
 
 
@@ -111,9 +111,8 @@ long ${functionName}(int triggerPin, int echoPin) {
   };
 
   Blockly.Arduino.forBlock['piblockly_hw_mpu9250_gyro_3axis'] = function (block) {
-    const axis = block.getFieldValue('AXIS'); // 0, 1, 2 for x, y, z
-    const axes = ['myMPU9250.gyroX()', 'myMPU9250.gyroY()', 'myMPU9250.gyroZ()'];
-    return [axes[parseInt(axis)], Blockly.Arduino.ORDER_ATOMIC];
+    const axis = block.getFieldValue('AXIS');
+    return [axis, Blockly.Arduino.ORDER_ATOMIC];
   };
 
 
@@ -123,14 +122,13 @@ long ${functionName}(int triggerPin, int echoPin) {
   };
 
   Blockly.Arduino.forBlock['piblockly_hw_mpu9250_mag_3axis'] = function (block) {
-    const axis = block.getFieldValue('AXIS'); // 0, 1, 2 for x, y, z
-    const axes = ['myMPU9250.magX()', 'myMPU9250.magY()', 'myMPU9250.magZ()'];
-    return [axes[parseInt(axis)], Blockly.Arduino.ORDER_ATOMIC];
+    const axis = block.getFieldValue('AXIS');
+    return [axis, Blockly.Arduino.ORDER_ATOMIC];
   };
 
   Blockly.Arduino.forBlock['piblockly_hw_mpu9250_accel_pitch_roll'] = function (block) {
-    const pitchRoll = block.getFieldValue('PITCH_ROLL'); // 0 for pitch, 1 for roll
-    return [pitchRoll === "0" ? 'pitch' : 'roll', Blockly.Arduino.ORDER_ATOMIC];
+    const pitchRoll = block.getFieldValue('PITCH_ROLL');
+    return [pitchRoll, Blockly.Arduino.ORDER_ATOMIC];
   };
 
 
@@ -146,7 +144,7 @@ long ${functionName}(int triggerPin, int echoPin) {
 
     const wireSetupCode = getPlatformAwareWireSetup(sdaPin, sclPin);
 
-    let setupCode = `  ${wireSetupCode}\n`;
+    let setupCode = `${wireSetupCode}\n`;
     setupCode += `  max3010xReady=max3010xSensor.begin(Wire, I2C_SPEED_FAST);\n`;
     setupCode += `  max3010xSensor.setup(${ledRed}, 4, 2, 800, 215, 16384);\n`;
     setupCode += `  max3010xSensor.enableDIETEMPRDY();\n`;
@@ -168,11 +166,65 @@ long ${functionName}(int triggerPin, int echoPin) {
   };
   Blockly.Arduino.forBlock['PIBLOCKLY_HW_max30105_get_beat_rate'] = function (block) {
     var a = Blockly.Arduino.valueToCode(block, "AVG", Blockly.Arduino.ORDER_ATOMIC) || "0";
-    Blockly.Arduino.function_definitions_['define_MAX30105_heartbeat_invoke'] = 'int getHeartBeat(byte avgTimes)\n{\n  long lastBeat=0, myIRvalue=0, delta=0;\n  byte myCount=0;\n  int beatSum=0;\n  float myBPM=0.0;\n  while(myCount<avgTimes){\n    myIRvalue=max3010xSensor.getIR();\n    if (checkForBeat(myIRvalue)) {\n      delta = millis() - lastBeat;\n      lastBeat = millis();\n      myBPM = 60 / (delta / 1000.0);\n      if (myBPM < validMax && myBPM > validMin) {\n        beatSum+=( (byte)myBPM);\n        myCount++;\n      }\n    }\n    if (myIRvalue < FINGER_ON )\n      break;\n  }\n  if (myCount==0)\n    myCount=1;\n  return(beatSum/myCount);\n}\n';
+    Blockly.Arduino.function_definitions_['define_MAX30105_heartbeat_invoke'] = `int getHeartBeat(byte avgTimes) {
+  long lastBeat=0, myIRvalue=0, delta=0;
+  byte myCount=0;
+  int beatSum=0;
+  float myBPM=0.0;
+  while(myCount<avgTimes){
+    myIRvalue=max3010xSensor.getIR();
+    if (checkForBeat(myIRvalue)) {
+      delta = millis() - lastBeat;
+      lastBeat = millis();
+      myBPM = 60 / (delta / 1000.0);
+      if (myBPM < validMax && myBPM > validMin) {
+        beatSum+=( (byte)myBPM);
+        myCount++;
+      }
+    }
+    if (myIRvalue < FINGER_ON )
+      break;
+  }
+  if (myCount==0)
+    myCount=1;
+  return(beatSum/myCount);
+}`;
     return ['getHeartBeat(' + a + ')', Blockly.Arduino.ORDER_ATOMIC];
   };
   Blockly.Arduino.forBlock['PIBLOCKLY_HW_max30105_get_spo2'] = function (block) {
-    Blockly.Arduino.function_definitions_['define_MAX30105_spo2_invoke'] = 'double getSPO2(byte avgTimes)\n{\n  uint32_t ir,red;\n  double df_red,df_ir;\n  byte myCount=0;\n  double sumIR = 0, sumRed = 0, SpO2 = 0;\n  while(myCount<avgTimes){\n    max3010xSensor.check();\n    if (max3010xSensor.available()) {\n      myCount++;\n      red = max3010xSensor.getFIFOIR();\n      ir = max3010xSensor.getFIFORed();\n      max3010xSensor.nextSample();\n      df_red = (double)red;\n      df_ir = (double)ir;\n      avgRed = avgRed * frate + (double)red * (1.0 - frate);\n      avgIR = avgIR * frate + (double)ir * (1.0 - frate);\n      sumRed += (df_red - avgRed) * (df_red - avgRed);\n      sumIR += (df_ir - avgIR) * (df_ir - avgIR);\n    }\n  }\n  if (myCount==avgTimes){\n    double R = (sqrt(sumRed) / avgRed) / (sqrt(sumIR) / avgIR);\n    SpO2 = -23.3 * (R - 0.4) + 100;\n    ESpO2 = FSpO2 * ESpO2 + (1.0 - FSpO2) * SpO2;\n    if (ESpO2 <= MINIMUM_SPO2)\n      ESpO2 = MINIMUM_SPO2;\n    if (ESpO2 > 100)\n      ESpO2 = 99.9;\n  } else {\n      ESpO2 = MINIMUM_SPO2;\n  }\n  return ESpO2;\n}\n';
+    Blockly.Arduino.function_definitions_['define_MAX30105_spo2_invoke'] = `double getSPO2(byte avgTimes) {
+  uint32_t ir,red;
+  double df_red,df_ir;
+  byte myCount=0;
+  double sumIR = 0, sumRed = 0, SpO2 = 0;
+  while(myCount<avgTimes){
+    max3010xSensor.check();
+    if (max3010xSensor.available()) {
+      myCount++;
+      red = max3010xSensor.getFIFOIR();
+      ir = max3010xSensor.getFIFORed();
+      max3010xSensor.nextSample();
+      df_red = (double)red;
+      df_ir = (double)ir;
+      avgRed = avgRed * frate + (double)red * (1.0 - frate);
+      avgIR = avgIR * frate + (double)ir * (1.0 - frate);
+      sumRed += (df_red - avgRed) * (df_red - avgRed);
+      sumIR += (df_ir - avgIR) * (df_ir - avgIR);
+    }
+  }
+  if (myCount==avgTimes){
+    double R = (sqrt(sumRed) / avgRed) / (sqrt(sumIR) / avgIR);
+    SpO2 = -23.3 * (R - 0.4) + 100;
+    ESpO2 = FSpO2 * ESpO2 + (1.0 - FSpO2) * SpO2;
+    if (ESpO2 <= MINIMUM_SPO2)
+      ESpO2 = MINIMUM_SPO2;
+    if (ESpO2 > 100)
+      ESpO2 = 99.9;
+  } else {
+      ESpO2 = MINIMUM_SPO2;
+  }
+  return ESpO2;
+}`;
     return ['getSPO2(20)', Blockly.Arduino.ORDER_ATOMIC];
   };
   Blockly.Arduino.forBlock['PIBLOCKLY_HW_max30105_get_temperature'] = function (block) {
@@ -187,7 +239,7 @@ long ${functionName}(int triggerPin, int echoPin) {
   Blockly.Arduino.forBlock['PIBLOCKLY_HW_max30105_set_beat_range'] = function (block) {
     var a = Blockly.Arduino.valueToCode(block, "MIN", Blockly.Arduino.ORDER_ATOMIC) || "0",
       b = Blockly.Arduino.valueToCode(block, "MAX", Blockly.Arduino.ORDER_ATOMIC) || "0";
-    return 'validMin=' + a + ';\nvalidMax=' + b + ';\n';
+    return `validMin=${a};\nvalidMax=${b};\n`;
   };
   Blockly.Arduino.forBlock['PIBLOCKLY_HW_max30105_set_spo2_clear'] = function (block) {
     return 'avgRed=0;\navgIR=0;\nESpO2=MINIMUM_SPO2;\n';
@@ -202,23 +254,33 @@ long ${functionName}(int triggerPin, int echoPin) {
     var DAT = Blockly.Arduino.valueToCode(block, 'DAT', Blockly.Arduino.ORDER_ATOMIC);
     var pressures = block.getFieldValue('pressures');
     var rumble = block.getFieldValue('rumble');
-    Blockly.Arduino.includes_['define_ps2_initial'] = '#include <PS2X_lib.h>\n'
-      + '#define PS2_DAT        ' + DAT + '\n'
-      + '#define PS2_CMD        ' + CMD + '\n'
-      + '#define PS2_SEL        ' + CS + '\n'
-      + '#define PS2_CLK        ' + CLK + '\n'
-      + '#define pressures   ' + pressures + '\n'
-      + '#define rumble      ' + rumble + '\n'
-      + 'PS2X ps2x;\n'
-      + 'int ps2_error = 0;\nbyte ps2_type = 0;\nString ps2_rotate[8] = {"ul","u","ur","r","dr","d","dl","l"};\n';
-    Blockly.Arduino.setups_['define_ps2_initial'] = 'delay(300);\n  ps2_error = ps2x.config_gamepad(PS2_CLK, PS2_CMD, PS2_SEL, PS2_DAT, pressures, rumble);\n  if (ps2_error==0)\n    ps2_type = ps2x.readType();';
+    Blockly.Arduino.includes_['define_ps2_initial'] = `#include <PS2X_lib.h>
+#define PS2_DAT        ${DAT}
+#define PS2_CMD        ${CMD}
+#define PS2_SEL        ${CS}
+#define PS2_CLK        ${CLK}
+#define pressures   ${pressures}
+#define rumble      ${rumble}
+PS2X ps2x;
+int ps2_error = 0;
+byte ps2_type = 0;
+String ps2_rotate[8] = {"ul","u","ur","r","dr","d","dl","l"};
+`;
+    Blockly.Arduino.setups_['define_ps2_initial'] = `delay(300);
+  ps2x.config_gamepad(PS2_CLK, PS2_CMD, PS2_SEL, PS2_DAT, pressures, rumble);
+  if (ps2_error==0)
+    ps2_type = ps2x.readType();`;
     return '';
   };
   Blockly.Arduino.forBlock['PIBLOCKLY_HW_ps2_read'] = function (block) {
     var vibrate = block.getFieldValue('vibrate');
     var val = Blockly.Arduino.valueToCode(block, 'val', Blockly.Arduino.ORDER_ATOMIC);
-    var code = 'if (ps2_error != 0) return;\nif (ps2_type == 2)\n  ps2x.read_gamepad();\nelse\n  ps2x.read_gamepad(' + vibrate + ', ' + val + ');\n';
-    return code;
+    return `if (ps2_error != 0) return;
+if (ps2_type == 2)
+  ps2x.read_gamepad();
+else
+  ps2x.read_gamepad(${vibrate}, ${val});
+`;
   };
   Blockly.Arduino.forBlock['PIBLOCKLY_HW_ps2_button_event'] = function (block) {
     var btn = block.getFieldValue('button');
@@ -243,52 +305,52 @@ long ${functionName}(int triggerPin, int echoPin) {
     var type = block.getFieldValue('type');
     var direction = block.getFieldValue('direction');
     var analogMax = "255";
-    Blockly.Arduino.function_definitions_['ps2_stick_direction8'] = 'String ps2_stick_direction8(boolean position) {\n' +
-      '  int X, Y;\n' +
-      '  int analogMax = ' + analogMax + ';\n' +
-      '  int lower = analogMax/2-analogMax/8;\n' +
-      '  int upper = analogMax/2+analogMax/8;\n' +
-      '  if (position)\n' +
-      '  {\n' +
-      '    X = ps2x.Analog(PSS_LX);\n' +
-      '    Y = ps2x.Analog(PSS_LY);\n' +
-      '  }\n' +
-      '  else\n' +
-      '  {\n' +
-      '    X = ps2x.Analog(PSS_RX);\n' +
-      '    Y = ps2x.Analog(PSS_RY);\n' +
-      '  }\n' +
-      '  if (X<=lower&&Y<=lower)  return ps2_rotate[0];\n' +
-      '  if (X>=lower&&X<=upper&&Y<=lower)  return ps2_rotate[1];\n' +
-      '  if (X>=upper&&Y<=lower)  return ps2_rotate[2];\n' +
-      '  if (X>=upper&&Y>=lower&&Y<=upper)  return ps2_rotate[3];\n' +
-      '  if (X>=upper&&Y>=upper)  return ps2_rotate[4];\n' +
-      '  if (X>=lower&&X<=upper&&Y>=upper)  return ps2_rotate[5];\n' +
-      '  if (X<=lower&&Y>=upper)  return ps2_rotate[6];\n' +
-      '  if (X<=lower&&Y>=lower&&Y<=upper)  return ps2_rotate[7];\n' +
-      '  return "x";\n' +
-      '}\n';
-    Blockly.Arduino.function_definitions_['ps2_stick_direction4'] = 'String ps2_stick_direction4(boolean position) {\n' +
-      '  int X, Y;\n' +
-      '  int analogMax = ' + analogMax + ';\n' +
-      '  int lower = analogMax/2-analogMax/8;\n' +
-      '  int upper = analogMax/2+analogMax/8;\n' +
-      '  if (position)\n' +
-      '  {\n' +
-      '    X = ps2x.Analog(PSS_LX);\n' +
-      '    Y = ps2x.Analog(PSS_LY);\n' +
-      '  }\n' +
-      '  else\n' +
-      '  {\n' +
-      '    X = ps2x.Analog(PSS_RX);\n' +
-      '    Y = ps2x.Analog(PSS_RY);\n' +
-      '  }\n' +
-      '  if (X>=lower&&X<=upper&&Y<=lower)  return ps2_rotate[1];\n' +
-      '  if (X>=upper&&Y>=lower&&Y<=upper)  return ps2_rotate[3];\n' +
-      '  if (X>=lower&&X<=upper&&Y>=upper)  return ps2_rotate[5];\n' +
-      '  if (X<=lower&&Y>=lower&&Y<=upper)  return ps2_rotate[7];\n' +
-      '  return "x";\n' +
-      '}\n';
+    Blockly.Arduino.function_definitions_['ps2_stick_direction8'] = `String ps2_stick_direction8(boolean position) {
+  int X, Y;
+  int analogMax = ${analogMax};
+  int lower = analogMax/2-analogMax/8;
+  int upper = analogMax/2+analogMax/8;
+  if (position)
+  {
+    X = ps2x.Analog(PSS_LX);
+    Y = ps2x.Analog(PSS_LY);
+  }
+  else
+  {
+    X = ps2x.Analog(PSS_RX);
+    Y = ps2x.Analog(PSS_RY);
+  }
+  if (X<=lower&&Y<=lower)  return ps2_rotate[0];
+  if (X>=lower&&X<=upper&&Y<=lower)  return ps2_rotate[1];
+  if (X>=upper&&Y<=lower)  return ps2_rotate[2];
+  if (X>=upper&&Y>=lower&&Y<=upper)  return ps2_rotate[3];
+  if (X>=upper&&Y>=upper)  return ps2_rotate[4];
+  if (X>=lower&&X<=upper&&Y>=upper)  return ps2_rotate[5];
+  if (X<=lower&&Y>=upper)  return ps2_rotate[6];
+  if (X<=lower&&Y>=lower&&Y<=upper)  return ps2_rotate[7];
+  return "x";
+}`;
+    Blockly.Arduino.function_definitions_['ps2_stick_direction4'] = `String ps2_stick_direction4(boolean position) {
+  int X, Y;
+  int analogMax = ${analogMax};
+  int lower = analogMax/2-analogMax/8;
+  int upper = analogMax/2+analogMax/8;
+  if (position)
+  {
+    X = ps2x.Analog(PSS_LX);
+    Y = ps2x.Analog(PSS_LY);
+  }
+  else
+  {
+    X = ps2x.Analog(PSS_RX);
+    Y = ps2x.Analog(PSS_RY);
+  }
+  if (X>=lower&&X<=upper&&Y<=lower)  return ps2_rotate[1];
+  if (X>=upper&&Y>=lower&&Y<=upper)  return ps2_rotate[3];
+  if (X>=lower&&X<=upper&&Y>=upper)  return ps2_rotate[5];
+  if (X<=lower&&Y>=lower&&Y<=upper)  return ps2_rotate[7];
+  return "x";
+}`;
     var code = '(ps2_stick_direction' + type + '(' + position + ')=="' + direction + '")';
     return [code, Blockly.Arduino.ORDER_ATOMIC];
   };
@@ -301,9 +363,9 @@ long ${functionName}(int triggerPin, int echoPin) {
     return [code, Blockly.Arduino.ORDER_ATOMIC];
   };
   Blockly.Arduino.forBlock['PIBLOCKLY_HW_ps2_analog_max'] = function (block) {
-    var val = Blockly.Arduino.valueToCode(block, 'val', Blockly.Arduino.ORDER_ATOMIC);
-    var code = 'int analogMax = ' + val + ';\n';
-    return code;
+    var val = Blockly.Arduino.valueToCode(block, 'val', Blockly.Arduino.ORDER_ATOMIC) || '0';
+    return `int analogMax = ${val};
+`;
   };
   Blockly.Arduino.forBlock['PIBLOCKLY_HW_ps2_analog_read'] = function (block) {
     var analog = block.getFieldValue('analog');
@@ -326,26 +388,22 @@ long ${functionName}(int triggerPin, int echoPin) {
     let speed = Blockly.Arduino.valueToCode(block, 'SPEED', Blockly.Arduino.ORDER_ATOMIC) || '0';
 
     Blockly.Arduino.global_vars_[`l293d_motor${motor}`] = `AF_DCMotor motor${motor}(${motor}, MOTOR12_8KHZ);`;
-    
-    // Constrain the speed to 0-255 range
+
     speed = `constrain(${speed}, 0, 255)`;
 
     return `motor${motor}.run(${dir});\nmotor${motor}.setSpeed(${speed});\n`;
   };
 
-  // New block: piblockly_hw_l293d_motor_speed
-  Blockly.Arduino.forBlock['piblockly_hw_l293d_motor_speed'] = function(block) {
+  Blockly.Arduino.forBlock['piblockly_hw_l293d_motor_speed'] = function (block) {
     Blockly.Arduino.includes_['l293d_afmotor'] = '#include <AFMotor.h>';
     const motor = block.getFieldValue('MOTOR');
     const speed = Blockly.Arduino.valueToCode(block, 'SPEED', Blockly.Arduino.ORDER_ATOMIC) || '0';
 
-    // Ensure the motor object is defined globally
     Blockly.Arduino.global_vars_[`l293d_motor${motor}`] = `AF_DCMotor motor${motor}(${motor}, MOTOR12_8KHZ);`;
-    
-    // Define a helper function to handle the signed speed logic
+
     const functionName = Blockly.Arduino.variableDB_.getDistinctName(
       `runDCMotor_${motor}`, Blockly.NAME_TYPE
-    ); // Use motor number in function name to avoid conflicts if multiple motors are used with this block
+    );
 
     const functionCode = `
 void ${functionName}(AF_DCMotor &motor_obj, int speed_val) {
@@ -363,10 +421,9 @@ void ${functionName}(AF_DCMotor &motor_obj, int speed_val) {
     motor_obj.setSpeed(0);
   }
 }`;
-    
+
     Blockly.Arduino.function_definitions_[`l293d_motor_speed_helper_${motor}`] = functionCode;
 
-    // Generate the call to the helper function
     return `${functionName}(motor${motor}, ${speed});\n`;
   };
 
@@ -379,15 +436,12 @@ void ${functionName}(AF_DCMotor &motor_obj, int speed_val) {
 
   Blockly.Arduino.forBlock['piblockly_hw_l293d_stepper_init'] = function (block) {
     Blockly.Arduino.includes_['l293d_afmotor'] = '#include <AFMotor.h>';
-    const motor = block.getFieldValue('MOTOR'); // S1 or S2, which map to 1 or 2
-    const steps = Blockly.Arduino.valueToCode(block, 'STEPS', Blockly.Arduino.ORDER_ATOMIC) || '0'; // steps per revolution
+    const motor = block.getFieldValue('MOTOR');
+    const steps = Blockly.Arduino.valueToCode(block, 'STEPS', Blockly.Arduino.ORDER_ATOMIC) || '0';
 
-    // The original AFMotor library constructor takes (steps_per_rev, motor_num), where motor_num is 1 or 2 for stepper ports.
-    // However, the original block's MOTOR dropdown gives "1" or "2" directly.
-    // So, AF_Stepper stepper1(steps, 1) or AF_Stepper stepper2(steps, 2)
     Blockly.Arduino.global_vars_[`l293d_stepper${motor}`] = `AF_Stepper stepper${motor}(${steps}, ${motor});`;
 
-    return ''; // Stepper init doesn't generate code in loop
+    return '';
   };
 
   Blockly.Arduino.forBlock['piblockly_hw_l293d_stepper_speed'] = function (block) {
@@ -399,9 +453,9 @@ void ${functionName}(AF_DCMotor &motor_obj, int speed_val) {
 
   Blockly.Arduino.forBlock['piblockly_hw_l293d_stepper_run'] = function (block) {
     const motor = block.getFieldValue('MOTOR');
-    const dir = block.getFieldValue('DIR'); // FORWARD or BACKWARD
+    const dir = block.getFieldValue('DIR');
     const steps = Blockly.Arduino.valueToCode(block, 'STEPS', Blockly.Arduino.ORDER_ATOMIC) || '0';
-    const method = block.getFieldValue('METHOD'); // SINGLE, DOUBLE, INTERLEAVE, MICROSTEP
+    const method = block.getFieldValue('METHOD');
 
     return `stepper${motor}.step(${steps}, ${dir}, ${method});\n`;
   };
@@ -414,7 +468,7 @@ void ${functionName}(AF_DCMotor &motor_obj, int speed_val) {
 
   Blockly.Arduino.forBlock['piblockly_hw_l293d_servo_run'] = function (block) {
     Blockly.Arduino.includes_['l293d_servo'] = '#include <Servo.h>';
-    const motor = block.getFieldValue('MOTOR'); // 9 or 10
+    const motor = block.getFieldValue('MOTOR');
     const angle = Blockly.Arduino.valueToCode(block, 'ANGLE', Blockly.Arduino.ORDER_ATOMIC) || '0';
 
     Blockly.Arduino.global_vars_[`l293d_servo_${motor}`] = `Servo L293dServo_${motor};`;
@@ -424,7 +478,7 @@ void ${functionName}(AF_DCMotor &motor_obj, int speed_val) {
   };
 
   Blockly.Arduino.forBlock['piblockly_hw_l293d_servo_detach'] = function (block) {
-    const motor = block.getFieldValue('MOTOR'); // 9 or 10
+    const motor = block.getFieldValue('MOTOR');
 
     return `L293dServo_${motor}.detach();\n`;
   };
@@ -434,13 +488,13 @@ void ${functionName}(AF_DCMotor &motor_obj, int speed_val) {
     const sdaPin = Blockly.Arduino.valueToCode(block, 'SDA_PIN', Blockly.Arduino.ORDER_ATOMIC);
     const sclPin = Blockly.Arduino.valueToCode(block, 'SCL_PIN', Blockly.Arduino.ORDER_ATOMIC);
 
-    Blockly.Arduino.includes_['wire'] = '#include <Wire.h>'; // Ensure Wire.h is included
+    Blockly.Arduino.includes_['wire'] = '#include <Wire.h>';
     Blockly.Arduino.includes_['pca9685_adafruit_pwm'] = '#include <Adafruit_PWMServoDriver.h>';
     Blockly.Arduino.global_vars_['pca9685_pwm'] = 'Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();';
 
     const wireSetupCode = getPlatformAwareWireSetup(sdaPin, sclPin);
 
-    let setupCode = `  ${wireSetupCode}\n`;
+    let setupCode = `${wireSetupCode}\n`;
     setupCode += `  pwm.begin();\n`;
     setupCode += `  pwm.setOscillatorFrequency(27000000);\n`;
     setupCode += `  pwm.setPWMFreq(50);\n`;
@@ -470,7 +524,7 @@ void ${functionName}(AF_DCMotor &motor_obj, int speed_val) {
     Blockly.Arduino.global_vars_['pca9685_servomin'] = `int servomin = ${pulse_min};`;
     Blockly.Arduino.global_vars_['pca9685_servomax'] = `int servomax = ${pulse_max};`;
 
-    return ''; // No code to generate in loop
+    return '';
   };
 
   Blockly.Arduino.forBlock['piblockly_hw_pca9685_servo_write'] = function (block) {
@@ -732,6 +786,225 @@ ${branch}  }
     return `huskylens.loadModelFromSDCard(${id});\n`;
   };
 
+
+  // Music Blocks
+  const ensureMusicDependencies = () => {
+    Blockly.Arduino.definitions_['define_g_tempo_bpm'] = 'int g_tempo_bpm = 120;';
+    Blockly.Arduino.definitions_['define_g_quarter_note_ms'] = 'float g_quarter_note_ms = 500.0;';
+    Blockly.Arduino.definitions_['define_playNote'] =
+      'void playNote(int pin, int frequency, int total_duration_ms) {\n' +
+      '  if (frequency <= 0) {\n' +
+      '    noTone(pin);\n' +
+      '    delay(total_duration_ms);\n' +
+      '  } else {\n' +
+      '    int tone_duration = total_duration_ms * 0.9;\n' +
+      '    tone(pin, frequency, tone_duration);\n' +
+      '    delay(total_duration_ms);\n' +
+      '  }\n' +
+      '  noTone(pin);\n' +
+      '}\n';
+  };
+
+  const getFrequencyFromPitchOctave = (pitchStr, octave) => {
+    const C0_FREQ = 16.35;
+    let semitonesFromC = 0;
+    let effectivePitch = pitchStr;
+    if (pitchStr.length > 1 && (pitchStr.endsWith('#') || pitchStr.endsWith('b'))) {
+      effectivePitch = pitchStr.substring(0, pitchStr.length - 1);
+      const accidental = pitchStr.endsWith('#') ? 1 : -1;
+      switch (effectivePitch) {
+        case 'C': semitonesFromC = 0 + accidental; break;
+        case 'D': semitonesFromC = 2 + accidental; break;
+        case 'E': semitonesFromC = 4 + accidental; break;
+        case 'F': semitonesFromC = 5 + accidental; break;
+        case 'G': semitonesFromC = 7 + accidental; break;
+        case 'A': semitonesFromC = 9 + accidental; break;
+        case 'B': semitonesFromC = 11 + accidental; break;
+        default: return 0;
+      }
+    } else {
+      switch (pitchStr) {
+        case 'C': semitonesFromC = 0; break;
+        case 'D': semitonesFromC = 2; break;
+        case 'E': semitonesFromC = 4; break;
+        case 'F': semitonesFromC = 5; break;
+        case 'G': semitonesFromC = 7; break;
+        case 'A': semitonesFromC = 9; break;
+        case 'B': semitonesFromC = 11; break;
+        default: return 0;
+      }
+    }
+    if (semitonesFromC < 0) { semitonesFromC += 12; }
+    if (semitonesFromC >= 12) { semitonesFromC -= 12; }
+    return C0_FREQ * Math.pow(2, octave + (semitonesFromC / 12.0));
+  };
+
+  const getNoteValueRatio = (durationChar) => {
+    switch (durationChar) {
+      case 'W': return 4.0;
+      case 'H': return 2.0;
+      case 'Q': return 1.0;
+      case 'E': return 0.5;
+      case 'S': return 0.25;
+      case 'T': return 0.125;
+      default: return 1.0;
+    }
+  };
+
+  Blockly.Arduino.forBlock['piblockly_hw_music_set_tempo'] = function (block) {
+    ensureMusicDependencies();
+    var bpm = Blockly.Arduino.valueToCode(block, 'BPM', Blockly.Arduino.ORDER_ATOMIC) || '120';
+    var code = 'g_tempo_bpm = ' + bpm + ';\n';
+    code += 'g_quarter_note_ms = 60000.0 / g_tempo_bpm;\n';
+    return code;
+  };
+
+  Blockly.Arduino.forBlock['piblockly_hw_music_play_note'] = function (block) {
+    ensureMusicDependencies();
+    var pin = Blockly.Arduino.valueToCode(block, 'PIN', Blockly.Arduino.ORDER_ATOMIC) || '8';
+    var frequency = Blockly.Arduino.valueToCode(block, 'FREQUENCY', Blockly.Arduino.ORDER_ATOMIC) || '440';
+    var noteValueRatio = parseFloat(block.getFieldValue('NOTE_VALUE'));
+    var isDotted = block.getFieldValue('DOTTED') === 'TRUE';
+    var isTriplet = block.getFieldValue('TRIPLET') === 'TRUE';
+
+    var pinKey = pin.replace(/"/g, '');
+    Blockly.Arduino.setups_['setup_output_' + pinKey] = 'pinMode(' + pin + ', OUTPUT);\n';
+
+    var duration_ms_code = 'g_quarter_note_ms * ' + noteValueRatio;
+    if (isDotted) {
+      duration_ms_code += ' * 1.5';
+    }
+    if (isTriplet) {
+      duration_ms_code += ' * (2.0 / 3.0)';
+    }
+    var code = 'playNote(' + pin + ', ' + frequency + ', (int)(' + duration_ms_code + '));\n';
+    return code;
+  };
+
+  Blockly.Arduino.forBlock['piblockly_hw_music_play_melody_string'] = function (block) {
+    ensureMusicDependencies();
+    const pin = Blockly.Arduino.valueToCode(block, 'PIN', Blockly.Arduino.ORDER_ATOMIC) || '8';
+    const melodyString = block.getFieldValue('MELODY_STRING') || '';
+
+    const pinKey = pin.replace(/"/g, '');
+    Blockly.Arduino.setups_['setup_output_' + pinKey] = 'pinMode(' + pin + ', OUTPUT);\n';
+
+    const notes = melodyString.split(',').map(s => s.trim()).filter(s => s.length > 0);
+    const sanitizedMelodyString = melodyString.replace(/\n/g, '\n// ');
+
+    let code = '';
+    code += `// Melody String Syntax:\n`;
+    code += `// Format: [Note/Rest][Octave][Duration][. (Dotted)][_T (Triplet)]\n`;
+    code += `// Each note/rest is separated by a comma (e.g., "C4Q,D4Q,E4H").\n`;
+    code += `//\n`;
+    code += `// Pitches: C, D, E, F, G, A, B. Can include sharps (#) or flats (b) e.g., C#, Eb.\n`;
+    code += `// Octaves: Numbers 0-8. (e.g., C4 is middle C)\n`;
+    code += `// Durations: W (Whole), H (Half), Q (Quarter), E (Eighth), S (Sixteenth), T (Thirty-second).\n`;
+    code += `// Dotted: Add '.' after duration for dotted notes (e.g., Q. for dotted quarter).\n`;
+    code += `// Triplet: Add '_T' after duration (and optional dot) for triplets. Each note in a triplet group should have _T (e.g., E_T, E_T, F_T).\n`;
+    code += `// Rests: Start with 'R' followed by duration (e.g., RQ for quarter rest). Can be dotted or triplet (e.g., RE._T).\n`;
+    code += `// Examples: "C4Q, D4Q, E4H", "C#5E., RQH, D3S_T, E3S_T, F3S_T"\n\n`;
+
+    code += `// Generated melody from: ${sanitizedMelodyString}\n`;
+    code += `{\n`;
+    code += `  float current_quarter_note_ms = g_quarter_note_ms; // Use float for precision\n`;
+
+    notes.forEach(noteStr => {
+      let match;
+      const noteRegex = /^([A-G][#b]?)?([0-8])?([WHQEST])(\.)?(_T)?$/i;
+
+      if (noteStr.toUpperCase().startsWith('R')) {
+        const restPart = noteStr.substring(1);
+        match = restPart.match(/^([WHQEST])(\.)?(_T)?$/i);
+        if (match) {
+          let durationChar = match[1].toUpperCase();
+          let isDotted = !!match[2];
+          let isTriplet = !!match[3];
+
+          let durationRatio = getNoteValueRatio(durationChar);
+          if (isDotted) { durationRatio *= 1.5; }
+          if (isTriplet) { durationRatio *= (2.0 / 3.0); }
+
+          code += `  playNote(${pin}, 0, (int)(current_quarter_note_ms * ${durationRatio})); // Rest\n`;
+        } else {
+          code += `  // WARNING: Invalid rest format: ${noteStr}\n`;
+          code += `  delay(250); // Default short rest\n`;
+        }
+        return;
+      }
+
+      match = noteStr.match(noteRegex);
+
+      if (match) {
+        let pitch = match[1] ? match[1].toUpperCase() : 'C';
+        let octave = match[2] ? parseInt(match[2], 10) : 4;
+        let durationChar = match[3].toUpperCase();
+        let isDotted = !!match[4];
+        let isTriplet = !!match[5];
+
+        let frequency = getFrequencyFromPitchOctave(pitch, octave);
+        let durationRatio = getNoteValueRatio(durationChar);
+        if (isDotted) { durationRatio *= 1.5; }
+        if (isTriplet) { durationRatio *= (2.0 / 3.0); }
+
+        if (frequency === 0) {
+          code += `  // WARNING: Invalid pitch or octave for note: ${noteStr}\n`;
+          frequency = 440; // Default to A4
+        }
+
+        code += `  playNote(${pin}, (int)${frequency.toFixed(0)}, (int)(current_quarter_note_ms * ${durationRatio}));\n`;
+      } else {
+        code += `  // WARNING: Invalid note format: ${noteStr}\n`;
+        code += `  playNote(${pin}, 440, (int)(current_quarter_note_ms)); // Play a default note for error\n`;
+      }
+    });
+    code += `}\n`;
+    return code;
+  };
+
+  Blockly.Arduino.forBlock['piblockly_hw_music_note_to_frequency'] = function (block) {
+    var noteName = block.getFieldValue('NOTE_NAME');
+    var octave = parseInt(block.getFieldValue('OCTAVE'), 10);
+    if (noteName === "REST_INDICATOR") {
+      return [0, Blockly.Arduino.ORDER_ATOMIC];
+    }
+    var semitonesFromC = 0;
+    switch (noteName) {
+      case 'C': semitonesFromC = 0; break;
+      case 'CS': semitonesFromC = 1; break;
+      case 'D': semitonesFromC = 2; break;
+      case 'DS': semitonesFromC = 3; break;
+      case 'E': semitonesFromC = 4; break;
+      case 'F': semitonesFromC = 5; break;
+      case 'FS': semitonesFromC = 6; break;
+      case 'G': semitonesFromC = 7; break;
+      case 'GS': semitonesFromC = 8; break;
+      case 'A': semitonesFromC = 9; break;
+      case 'AS': semitonesFromC = 10; break;
+      case 'B': semitonesFromC = 11; break;
+    }
+    const C0_FREQ = 16.35;
+    var frequency = C0_FREQ * Math.pow(2, octave + (semitonesFromC / 12));
+    return [frequency.toFixed(2), Blockly.Arduino.ORDER_ATOMIC];
+  };
+
+  Blockly.Arduino.forBlock['piblockly_hw_music_tone'] = function (block) {
+    var pin = Blockly.Arduino.valueToCode(block, 'PIN', Blockly.Arduino.ORDER_ATOMIC) || '8';
+    var frequency = Blockly.Arduino.valueToCode(block, 'FREQUENCY', Blockly.Arduino.ORDER_ATOMIC) || '440';
+    var duration = Blockly.Arduino.valueToCode(block, 'DURATION', Blockly.Arduino.ORDER_ATOMIC) || '200';
+    var pinKey = pin.replace(/"/g, '');
+    Blockly.Arduino.setups_['setup_output_' + pinKey] = 'pinMode(' + pin + ', OUTPUT);\n';
+    var code = 'tone(' + pin + ', ' + frequency + ', ' + duration + ');\n';
+    return code;
+  };
+
+  Blockly.Arduino.forBlock['piblockly_hw_music_no_tone'] = function (block) {
+    var pin = Blockly.Arduino.valueToCode(block, 'PIN', Blockly.Arduino.ORDER_ATOMIC) || '8';
+    var pinKey = pin.replace(/"/g, '');
+    Blockly.Arduino.setups_['setup_output_' + pinKey] = 'pinMode(' + pin + ', OUTPUT);\n';
+    var code = 'noTone(' + pin + ');\n';
+    return code;
+  };
 
 
 }

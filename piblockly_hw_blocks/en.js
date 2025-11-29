@@ -15,6 +15,38 @@ export const MSG_PIBLOCKLY_HW_EN = {
   // Actuators
   PIBLOCKLY_HW_CATEGORY_ACTUATORS: "Actuators",
 
+  // Music
+  PIBLOCKLY_HW_MUSIC_HUE: "#de57ad",
+  PIBLOCKLY_HW_CATEGORY_MUSIC: "Music",
+
+  PIBLOCKLY_HW_MUSIC_SET_TEMPO: "Set Music Tempo",
+  PIBLOCKLY_HW_MUSIC_BPM: "BPM",
+  PIBLOCKLY_HW_MUSIC_SET_TEMPO_TOOLTIP: "Sets the global tempo in Beats Per Minute (BPM) for music blocks.",
+  PIBLOCKLY_HW_MUSIC_PLAY_NOTE: "Play Note",
+  PIBLOCKLY_HW_MUSIC_PIN: "Pin",
+  PIBLOCKLY_HW_MUSIC_FREQUENCY: "Frequency (Hz)",
+  PIBLOCKLY_HW_MUSIC_NOTE_DURATION: "Duration:",
+  PIBLOCKLY_HW_MUSIC_WHOLE_NOTE: "Whole Note",
+  PIBLOCKLY_HW_MUSIC_HALF_NOTE: "Half Note",
+  PIBLOCKLY_HW_MUSIC_QUARTER_NOTE: "Quarter Note",
+  PIBLOCKLY_HW_MUSIC_EIGHTH_NOTE: "Eighth Note",
+  PIBLOCKLY_HW_MUSIC_SIXTEENTH_NOTE: "Sixteenth Note",
+  PIBLOCKLY_HW_MUSIC_THIRTYSECOND_NOTE: "Thirty-second Note",
+  PIBLOCKLY_HW_MUSIC_PLAY_NOTE_TOOLTIP: "Plays a musical note on the specified pin with given frequency and duration. Can be dotted or triplet.",
+  PIBLOCKLY_HW_MUSIC_DOTTED: "Dotted",
+  PIBLOCKLY_HW_MUSIC_TRIPLET: "Triplet",
+  PIBLOCKLY_HW_MUSIC_NOTE_TO_FREQUENCY: "Note to Frequency",
+  PIBLOCKLY_HW_MUSIC_NOTE_TO_FREQUENCY_TOOLTIP: "Converts a musical note (e.g., C4, A#5) to its corresponding frequency in Hz.",
+  PIBLOCKLY_HW_MUSIC_TONE: "Play tone on pin %1 with frequency %2 for duration (ms) %3 (non-blocking)",
+  PIBLOCKLY_HW_MUSIC_TONE_TOOLTIP: "Generates a tone on the specified pin.",
+  PIBLOCKLY_HW_MUSIC_NO_TONE: "Stop tone on pin %1",
+  PIBLOCKLY_HW_MUSIC_NO_TONE_TOOLTIP: "Stops the tone playing on the specified pin.",
+  PIBLOCKLY_HW_MUSIC_NOTE_NAME_REST: "Rest",
+  PIBLOCKLY_HW_MUSIC_PLAY_MELODY_STRING_MESSAGE: "Play Melody String",
+  PIBLOCKLY_HW_MUSIC_PLAY_MELODY_STRING_MESSAGE_PIN: "Play melody on pin",
+  PIBLOCKLY_HW_MUSIC_PLAY_MELODY_STRING_MESSAGE_MELODY: "Melody:",
+  PIBLOCKLY_HW_MUSIC_PLAY_MELODY_STRING_TOOLTIP: "Plays a melody defined by a string (e.g., C4Q,D4Q,E4H). Use R for rests, _T for triplets. Usage details in code comments.",
+
   // AI
   PIBLOCKLY_HW_CATEGORY_AI: "AI",
 
@@ -112,8 +144,6 @@ export const MSG_PIBLOCKLY_HW_EN = {
   PIBLOCKLY_HW_MAX30105_SET_BEAT_RANGE_MESSAGE:
     "MAX30105 SPO2 set available heartbeat rate range: %1 ~ %2",
   PIBLOCKLY_HW_MAX30105_SPO2_CLEAR: "reset SpO2 detected value",
-  PIBLOCKLY_HW_MAX30105_INIT_MESSAGE:
-    "MAX30105 SPO2 Init LED red brightness %1",
   PIBLOCKLY_HW_PROBBIE_INIT: "Init",
 
   // PS2 Blocks
@@ -254,10 +284,9 @@ export const MSG_PIBLOCKLY_HW_EN = {
   PIBLOCKLY_HW_SERVO_ATTACH_MESSAGE: "attach servo on pin %1 as %2",
   PIBLOCKLY_HW_SERVO_ATTACH_TOOLTIP: "Attaches a servo object to a specified pin and gives it a name.",
   PIBLOCKLY_HW_SERVO_ATTACH_ADVANCED_MESSAGE: "attach servo on pin %1 as %2 (pulse min %3 max %4 μs)",
-  PIBLOCKLY_HW_SERVO_ATTACH_ADVANCED_TOOLTIP: "Attaches a servo with custom pulse widths. 'min' corresponds to the 0-degree angle, and 'max' corresponds to the 180-degree angle.",
+  PIBLOCKLY_HW_SERVO_ATTACH_ADVANCED_TOOLTIP: "Attaches a servo with custom pulse widths, allowing for servos beyond the standard 180-degree range. 'min' should be the pulse width for 0 degrees, and 'max' should be the pulse width for the servo's maximum angle (e.g., 270 degrees).",
   PIBLOCKLY_HW_SERVO_WRITE_MESSAGE: "set servo %1 angle to %2",
-  PIBLOCKLY_HW_SERVO_WRITE_TOOLTIP: "Commands the specified servo to move to a certain angle (0-180).",
-  PIBLOCKLY_HW_SERVO_WRITE_MICROS_MESSAGE: "set servo %1 pulse to %2 (μs)",
+  PIBLOCKLY_HW_SERVO_WRITE_TOOLTIP: "Commands the servo to a specific angle. The effective range (e.g., 0-180, 0-270) depends on the servo model and the pulse widths defined in the attach block.",  PIBLOCKLY_HW_SERVO_WRITE_MICROS_MESSAGE: "set servo %1 pulse to %2 (μs)",
   PIBLOCKLY_HW_SERVO_WRITE_MICROS_TOOLTIP: "Sets the servo pulse in microseconds (e.g., 1000-2000).",
   PIBLOCKLY_HW_SERVO_READ_MESSAGE: "get angle from servo %1",
   PIBLOCKLY_HW_SERVO_READ_TOOLTIP: "Reads the last angle that was written to the servo.",

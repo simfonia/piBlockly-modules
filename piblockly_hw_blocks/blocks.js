@@ -1899,4 +1899,237 @@ export function registerBlocks(Blockly) {
     },
   };
 
+  // Music Blocks
+  Blockly.Blocks['piblockly_hw_music_set_tempo'] = {
+    init: function () {
+      this.jsonInit({
+        "message0": Blockly.Msg["PIBLOCKLY_HW_MUSIC_SET_TEMPO"] + " %1 " + Blockly.Msg["PIBLOCKLY_HW_MUSIC_BPM"],
+        "args0": [
+          {
+            "type": "input_value",
+            "name": "BPM",
+            "check": "Number",
+            "shadow": {
+              "type": "math_number",
+              "fields": { "NUM": 120 }
+            }
+          }
+        ],
+        "inputsInline": true,
+        "previousStatement": true,
+        "nextStatement": true,
+        "colour": Blockly.Msg["PIBLOCKLY_HW_MUSIC_HUE"],
+        "tooltip": Blockly.Msg["PIBLOCKLY_HW_MUSIC_SET_TEMPO_TOOLTIP"],
+        "helpUrl": ""
+      });
+    }
+  };
+
+  Blockly.Blocks['piblockly_hw_music_play_note'] = {
+    init: function () {
+      this.jsonInit({
+        "message0": Blockly.Msg["PIBLOCKLY_HW_MUSIC_PLAY_NOTE"] + " " + Blockly.Msg["PIBLOCKLY_HW_MUSIC_PIN"] + " %1 " + Blockly.Msg["PIBLOCKLY_HW_MUSIC_FREQUENCY"] + " %2",
+        "args0": [
+          {
+            "type": "input_value",
+            "name": "PIN",
+            "check": ["Number", "String"],
+            "shadow": {
+              "type": "arduino_pin_shadow",
+              "fields": { "PIN": "8" }
+            }
+          },
+          {
+            "type": "input_value",
+            "name": "FREQUENCY",
+            "check": "Number",
+            "shadow": {
+              "type": "math_number",
+              "fields": { "NUM": 440 }
+            }
+          }
+        ],
+        "message1": Blockly.Msg["PIBLOCKLY_HW_MUSIC_NOTE_DURATION"] + " %1 " + Blockly.Msg["PIBLOCKLY_HW_MUSIC_DOTTED"] + " %2 " + Blockly.Msg["PIBLOCKLY_HW_MUSIC_TRIPLET"] + " %3",
+        "args1": [
+          {
+            "type": "field_dropdown",
+            "name": "NOTE_VALUE",
+            "options": [
+              [Blockly.Msg["PIBLOCKLY_HW_MUSIC_WHOLE_NOTE"], "4.0"],
+              [Blockly.Msg["PIBLOCKLY_HW_MUSIC_HALF_NOTE"], "2.0"],
+              [Blockly.Msg["PIBLOCKLY_HW_MUSIC_QUARTER_NOTE"], "1.0"],
+              [Blockly.Msg["PIBLOCKLY_HW_MUSIC_EIGHTH_NOTE"], "0.5"],
+              [Blockly.Msg["PIBLOCKLY_HW_MUSIC_SIXTEENTH_NOTE"], "0.25"],
+              [Blockly.Msg["PIBLOCKLY_HW_MUSIC_THIRTYSECOND_NOTE"], "0.125"]
+            ]
+          },
+          {
+            "type": "field_checkbox",
+            "name": "DOTTED",
+            "checked": false
+          },
+          {
+            "type": "field_checkbox",
+            "name": "TRIPLET",
+            "checked": false
+          }
+        ],
+        "inputsInline": true,
+        "previousStatement": true,
+        "nextStatement": true,
+        "colour": Blockly.Msg["PIBLOCKLY_HW_MUSIC_HUE"],
+        "tooltip": Blockly.Msg["PIBLOCKLY_HW_MUSIC_PLAY_NOTE_TOOLTIP"],
+        "helpUrl": ""
+      });
+    }
+  };
+
+  Blockly.Blocks['piblockly_hw_music_play_melody_string'] = {
+    init: function () {
+      this.jsonInit({
+        "message0": Blockly.Msg.PIBLOCKLY_HW_MUSIC_PLAY_MELODY_STRING_MESSAGE_PIN + " %1 " + Blockly.Msg.PIBLOCKLY_HW_MUSIC_PLAY_MELODY_STRING_MESSAGE_MELODY + " %2",
+        "args0": [
+          {
+            "type": "input_value",
+            "name": "PIN",
+            "check": ["Number", "String"],
+            "shadow": {
+              "type": "arduino_pin_shadow",
+              "fields": { "PIN": "8" }
+            }
+          },
+          {
+            "type": "field_multilineinput",
+            "name": "MELODY_STRING",
+            "text": "C4Q,D4Q,E4H"
+          }
+        ],
+        "inputsInline": false,
+        "previousStatement": true,
+        "nextStatement": true,
+        "colour": Blockly.Msg.PIBLOCKLY_HW_MUSIC_HUE,
+        "tooltip": Blockly.Msg.PIBLOCKLY_HW_MUSIC_PLAY_MELODY_STRING_TOOLTIP,
+        "helpUrl": ""
+      });
+    }
+  };
+
+  Blockly.Blocks['piblockly_hw_music_note_to_frequency'] = {
+    init: function () {
+      this.jsonInit({
+        "message0": Blockly.Msg["PIBLOCKLY_HW_MUSIC_NOTE_TO_FREQUENCY"] + " %1 %2",
+        "args0": [
+          {
+            "type": "field_dropdown",
+            "name": "NOTE_NAME",
+            "options": [
+              [Blockly.Msg["PIBLOCKLY_HW_MUSIC_NOTE_NAME_REST"], "REST_INDICATOR"],
+              ["C", "C"],
+              ["C#", "CS"],
+              ["D", "D"],
+              ["D#", "DS"],
+              ["E", "E"],
+              ["F", "F"],
+              ["F#", "FS"],
+              ["G", "G"],
+              ["G#", "GS"],
+              ["A", "A"],
+              ["A#", "AS"],
+              ["B", "B"]
+            ]
+          },
+          {
+            "type": "field_dropdown",
+            "name": "OCTAVE",
+            "options": [
+              ["0", "0"],
+              ["1", "1"],
+              ["2", "2"],
+              ["3", "3"],
+              ["4", "4"],
+              ["5", "5"],
+              ["6", "6"],
+              ["7", "7"],
+              ["8", "8"]
+            ],
+            "defaultValue": "4"
+          }
+        ],
+        "output": "Number",
+        "inputsInline": true,
+        "colour": Blockly.Msg["PIBLOCKLY_HW_MUSIC_HUE"],
+        "tooltip": Blockly.Msg["PIBLOCKLY_HW_MUSIC_NOTE_TO_FREQUENCY_TOOLTIP"],
+        "helpUrl": ""
+      });
+    }
+  };
+
+  Blockly.Blocks['piblockly_hw_music_tone'] = {
+    init: function () {
+      this.jsonInit({
+        "message0": Blockly.Msg.PIBLOCKLY_HW_MUSIC_TONE,
+        "args0": [
+          {
+            "type": "input_value",
+            "name": "PIN",
+            "check": ["Number", "String"],
+            "shadow": {
+              "type": "arduino_pin_shadow",
+              "fields": { "PIN": "8" }
+            }
+          },
+          {
+            "type": "input_value",
+            "name": "FREQUENCY",
+            "check": "Number",
+            "shadow": {
+              "type": "math_number",
+              "fields": { "NUM": 440 }
+            }
+          },
+          {
+            "type": "input_value",
+            "name": "DURATION",
+            "check": "Number",
+            "shadow": {
+              "type": "math_number",
+              "fields": { "NUM": 200 }
+            }
+          }
+        ],
+        "inputsInline": true,
+        "previousStatement": true,
+        "nextStatement": true,
+        "colour": Blockly.Msg.PIBLOCKLY_HW_MUSIC_HUE,
+        "tooltip": Blockly.Msg.PIBLOCKLY_HW_MUSIC_TONE_TOOLTIP,
+        "helpUrl": ""
+      });
+    }
+  };
+
+  Blockly.Blocks['piblockly_hw_music_no_tone'] = {
+    init: function () {
+      this.jsonInit({
+        "message0": Blockly.Msg.PIBLOCKLY_HW_MUSIC_NO_TONE,
+        "args0": [
+          {
+            "type": "input_value",
+            "name": "PIN",
+            "check": ["Number", "String"],
+            "shadow": {
+              "type": "arduino_pin_shadow",
+              "fields": { "PIN": "8" }
+            }
+          }
+        ],
+        "inputsInline": true,
+        "previousStatement": true,
+        "nextStatement": true,
+        "colour": Blockly.Msg.PIBLOCKLY_HW_MUSIC_HUE,
+        "tooltip": Blockly.Msg.PIBLOCKLY_HW_MUSIC_NO_TONE_TOOLTIP,
+        "helpUrl": ""
+      });
+    }
+  };
+
 }

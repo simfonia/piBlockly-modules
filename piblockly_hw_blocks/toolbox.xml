@@ -338,6 +338,60 @@
         <block type="piblockly_hw_stepper_run"></block>
         <block type="piblockly_hw_stepper_stop"></block>
       </category>
+      <category name="%{BKY_PIBLOCKLY_HW_CATEGORY_MUSIC}" colour="%{BKY_PIBLOCKLY_HW_MUSIC_HUE}">
+        <block type="piblockly_hw_music_set_tempo">
+            <value name="BPM">
+                <shadow type="math_number">
+                    <field name="NUM">120</field>
+                </shadow>
+            </value>
+        </block>
+        <block type="piblockly_hw_music_play_note">
+            <value name="PIN">
+                <shadow type="arduino_pin_shadow">
+                    <field name="PIN">8</field>
+                </shadow>
+            </value>
+            <value name="FREQUENCY">
+                <shadow type="piblockly_hw_music_note_to_frequency">
+                    <field name="NOTE_NAME">C</field>
+                    <field name="OCTAVE">4</field>
+                </shadow>
+            </value>
+        </block>
+        <block type="piblockly_hw_music_play_melody_string">
+            <value name="PIN">
+                <shadow type="arduino_pin_shadow">
+                    <field name="PIN">8</field>
+                </shadow>
+            </value>
+        </block>
+        <block type="piblockly_hw_music_note_to_frequency"></block>
+        <block type="piblockly_hw_music_tone">
+            <value name="PIN">
+                <shadow type="arduino_pin_shadow">
+                    <field name="PIN">8</field>
+                </shadow>
+            </value>
+            <value name="FREQUENCY">
+                <shadow type="math_number">
+                    <field name="NUM">440</field>
+                </shadow>
+            </value>
+            <value name="DURATION">
+                <shadow type="math_number">
+                    <field name="NUM">200</field>
+                </shadow>
+            </value>
+        </block>
+        <block type="piblockly_hw_music_no_tone">
+            <value name="PIN">
+                <shadow type="arduino_pin_shadow">
+                    <field name="PIN">8</field>
+                </shadow>
+            </value>
+        </block>
+      </category>
     </category>
   <category name="%{BKY_PIBLOCKLY_HW_CATEGORY_AI}" colour="%{BKY_PIBLOCKLY_HW_COLOR_AI}">
     <category name="%{BKY_PIBLOCKLY_HW_CATEGORY_HUSKYLENS}" colour="%{BKY_PIBLOCKLY_HW_COLOR_AI}">
