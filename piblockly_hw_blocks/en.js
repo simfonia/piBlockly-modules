@@ -45,7 +45,7 @@ export const MSG_PIBLOCKLY_HW_EN = {
   PIBLOCKLY_HW_MUSIC_PLAY_MELODY_STRING_MESSAGE: "Play Melody String",
   PIBLOCKLY_HW_MUSIC_PLAY_MELODY_STRING_MESSAGE_PIN: "Play melody on pin",
   PIBLOCKLY_HW_MUSIC_PLAY_MELODY_STRING_MESSAGE_MELODY: "Melody:",
-  PIBLOCKLY_HW_MUSIC_PLAY_MELODY_STRING_TOOLTIP: "Plays a melody defined by a string (e.g., C4Q,D4Q,E4H). Use R for rests, _T for triplets. Usage details in code comments.",
+  PIBLOCKLY_HW_MUSIC_PLAY_MELODY_STRING_TOOLTIP: "Plays a melody defined by a string (e.g., C4Q,D4Q,E4H). Supports spaces or commas as delimiters; suggested newline every measure. Use R for rests, _T for triplets. Case-insensitive.",
 
   // AI
   PIBLOCKLY_HW_CATEGORY_AI: "AI",

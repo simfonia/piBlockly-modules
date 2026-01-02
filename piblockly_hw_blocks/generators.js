@@ -889,13 +889,15 @@ ${branch}  }
     const pinKey = pin.replace(/"/g, '');
     Blockly.Arduino.setups_['setup_output_' + pinKey] = 'pinMode(' + pin + ', OUTPUT);\n';
 
-    const notes = melodyString.split(',').map(s => s.trim()).filter(s => s.length > 0);
+    // Robust splitting: Replace commas and newlines with spaces before splitting by any whitespace
+    const cleanStr = melodyString.replace(/[,\r\n]/g, ' ');
+    const notes = cleanStr.split(/\s+/).map(s => s.trim()).filter(s => s.length > 0);
     const sanitizedMelodyString = melodyString.replace(/\n/g, '\n// ');
 
     let code = '';
     code += `// Melody String Syntax:\n`;
     code += `// Format: [Note/Rest][Octave][Duration][. (Dotted)][_T (Triplet)]\n`;
-    code += `// Each note/rest is separated by a comma (e.g., "C4Q,D4Q,E4H").\n`;
+    code += `// Each note/rest is separated by a comma, space, or newline (e.g., "C4Q D4Q E4H").\n`;
     code += `//\n`;
     code += `// Pitches: C, D, E, F, G, A, B. Can include sharps (#) or flats (b) e.g., C#, Eb.\n`;
     code += `// Octaves: Numbers 0-8. (e.g., C4 is middle C)\n`;
